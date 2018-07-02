@@ -16,8 +16,10 @@ import android.widget.TextView;
 import com.pao11.imagepicker.ImagePicker;
 import com.pao11.imagepicker.R;
 import com.pao11.imagepicker.bean.ImageFolder;
+import com.pao11.imagepicker.util.FileUtil;
 import com.pao11.imagepicker.util.Utils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,7 +71,7 @@ public class ImageFolderAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         final ViewHolder holder;
         if (convertView == null) {
             convertView = mInflater.inflate(R.layout.adapter_folder_list_item, parent, false);
@@ -86,22 +88,42 @@ public class ImageFolderAdapter extends BaseAdapter {
             imagePicker.getImageLoader().displayImage(mActivity, folder.cover.path, holder.cover, mImageSize, mImageSize);
         } else {
             holder.videoPlay.setVisibility(View.VISIBLE);
-            new Thread(new Runnable() {
 
-                @Override
-                public void run() {
-                    Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(folder.cover.path, MediaStore.Video.Thumbnails.MINI_KIND);
-                    final Bitmap[] bitmap1 = {ThumbnailUtils.extractThumbnail(bitmap, mImageSize, mImageSize,ThumbnailUtils.OPTIONS_RECYCLE_INPUT)};
-                    bitmap.recycle();
-                    mActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            holder.cover.setImageBitmap(bitmap1[0]);
-                            bitmap1[0] = null;
-                        }
-                    });
-                }
-            }).start();
+            String fileName = FileUtil.Md5FileNameGenerate(folder.cover.path, "jpg");
+            fileName = fileName.substring(0, fileName.lastIndexOf(".jpg")) + "_" + mImageSize + "_" + mImageSize + ".jpg";
+
+            File cacheRoot = FileUtil.getIndividualCacheDirectory(mActivity);
+            final File file = new File(cacheRoot, fileName);
+            if (file.exists()) {
+                imagePicker.getImageLoader().displayImage(mActivity, file.getAbsolutePath(), holder.cover, mImageSize, mImageSize); //显示本地图片
+            } else {
+
+                //用于滚动时，图片显示不正确的问题
+                holder.cover.setTag(position);
+
+                new Thread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(folder.cover.path, MediaStore.Video.Thumbnails.MINI_KIND);
+                        final Bitmap[] bitmap1 = {ThumbnailUtils.extractThumbnail(bitmap, mImageSize, mImageSize, ThumbnailUtils.OPTIONS_RECYCLE_INPUT)};
+
+                        bitmap.recycle();
+                        //保存到本地目录
+                        FileUtil.saveImageToSD(file.getAbsolutePath(), bitmap1[0], 100);
+
+                        mActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if ((int) holder.cover.getTag() == position) {
+                                    holder.cover.setImageBitmap(bitmap1[0]);
+                                }
+                                bitmap1[0] = null;
+                            }
+                        });
+                    }
+                }).start();
+            }
 
         }
 

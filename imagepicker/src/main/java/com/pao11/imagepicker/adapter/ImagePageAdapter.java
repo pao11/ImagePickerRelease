@@ -11,8 +11,10 @@ import android.view.ViewGroup;
 
 import com.pao11.imagepicker.ImagePicker;
 import com.pao11.imagepicker.bean.ImageItem;
+import com.pao11.imagepicker.util.FileUtil;
 import com.pao11.imagepicker.util.Utils;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import uk.co.senab.photoview.PhotoView;
@@ -53,24 +55,43 @@ public class ImagePageAdapter extends PagerAdapter {
     }
 
     @Override
-    public Object instantiateItem(ViewGroup container, int position) {
+    public Object instantiateItem(ViewGroup container, final int position) {
         final PhotoView photoView = new PhotoView(mActivity);
         final ImageItem imageItem = images.get(position);
         if (imageItem.mimeType.startsWith("video")) {
-            new Thread(new Runnable() {
+            String fileName = FileUtil.Md5FileNameGenerate(imageItem.path, "jpg");
 
-                @Override
-                public void run() {
-                    final Bitmap[] bitmap = {ThumbnailUtils.createVideoThumbnail(imageItem.path, MediaStore.Video.Thumbnails.MINI_KIND)};
-                    mActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            photoView.setImageBitmap(bitmap[0]);
-                            bitmap[0] = null;
-                        }
-                    });
-                }
-            }).start();
+            File cacheRoot = FileUtil.getIndividualCacheDirectory(mActivity);
+            final File file = new File(cacheRoot, fileName);
+            if (file.exists()) {
+                imagePicker.getImageLoader().displayImage(mActivity, file.getAbsolutePath(), photoView, screenWidth, screenHeight); //显示本地图片
+            } else {
+
+                photoView.setImageBitmap(null);
+                //用于滚动时，图片显示不正确的问题
+                photoView.setTag(position);
+
+                new Thread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        final Bitmap[] bitmap = {ThumbnailUtils.createVideoThumbnail(imageItem.path, MediaStore.Video.Thumbnails.MINI_KIND)};
+                        //保存到本地目录
+                        FileUtil.saveImageToSD(file.getAbsolutePath(), bitmap[0], 100);
+                        mActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if ((int) photoView.getTag() == position) {
+                                    photoView.setImageBitmap(bitmap[0]);
+                                }
+                                bitmap[0] = null;
+                            }
+                        });
+                    }
+                }).start();
+
+            }
+
         } else {
             imagePicker.getImageLoader().displayImagePreview(mActivity, imageItem.path, photoView, screenWidth, screenHeight);
         }

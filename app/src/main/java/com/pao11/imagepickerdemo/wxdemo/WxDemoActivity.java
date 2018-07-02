@@ -15,7 +15,7 @@ import com.pao11.imagepicker.ui.ImagePreviewDelActivity;
 import com.pao11.imagepicker.view.CropImageView;
 import com.pao11.imagepickerdemo.R;
 import com.pao11.imagepickerdemo.SelectDialog;
-import com.pao11.imagepickerdemo.imageloader.GlideImageLoader;
+import com.pao11.imagepickerdemo.imageloader.UILImageLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +48,7 @@ public class WxDemoActivity extends AppCompatActivity implements ImagePickerAdap
 
     private void initImagePicker() {
         ImagePicker imagePicker = ImagePicker.getInstance();
-        imagePicker.setImageLoader(new GlideImageLoader());   //设置图片加载器
+        imagePicker.setImageLoader(new UILImageLoader());   //设置图片加载器
         imagePicker.setShowCamera(true);                      //显示拍照按钮
         imagePicker.setCrop(true);                           //允许裁剪（单选才有效）
         imagePicker.setSaveRectangle(true);                   //是否按矩形区域保存

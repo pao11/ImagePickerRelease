@@ -21,9 +21,11 @@ import com.pao11.imagepicker.ImagePicker;
 import com.pao11.imagepicker.bean.ImageItem;
 import com.pao11.imagepicker.ui.ImageBaseActivity;
 import com.pao11.imagepicker.ui.ImageGridActivity;
+import com.pao11.imagepicker.util.FileUtil;
 import com.pao11.imagepicker.util.Utils;
 import com.pao11.imagepicker.view.SuperCheckBox;
 
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -171,24 +173,45 @@ public class ImageRecyclerAdapter extends RecyclerView.Adapter<ViewHolder> {
                 }
                 tvDuration.setText(durStr);
 
-                new Thread(new Runnable() {
+                String fileName = FileUtil.Md5FileNameGenerate(imageItem.path, "jpg");
+                fileName = fileName.substring(0, fileName.lastIndexOf(".jpg")) + "_" + mImageSize + "_" + mImageSize + ".jpg";
 
-                    @Override
-                    public void run() {
-                        Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(imageItem.path, MediaStore.Video.Thumbnails.MINI_KIND);
-                        final Bitmap[] bitmap1 = {ThumbnailUtils.extractThumbnail(bitmap, mImageSize, mImageSize, ThumbnailUtils.OPTIONS_RECYCLE_INPUT)};
-                        bitmap.recycle();
-                        mActivity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                ivThumb.setImageBitmap(bitmap1[0]);
-                                bitmap1[0] = null;
-                            }
-                        });
-                    }
-                }).start();
+                File cacheRoot = FileUtil.getIndividualCacheDirectory(mActivity);
+                final File file = new File(cacheRoot, fileName);
+                if (file.exists()) {
+                    imagePicker.getImageLoader().displayImage(mActivity, file.getAbsolutePath(), ivThumb, mImageSize, mImageSize); //显示本地图片
+                } else {
+
+                    ivThumb.setImageBitmap(null);
+                    //用于滚动时，图片显示不正确的问题
+                    ivThumb.setTag(position);
+
+                    new Thread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(imageItem.path, MediaStore.Video.Thumbnails.MINI_KIND);
+                            final Bitmap[] bitmap1 = {ThumbnailUtils.extractThumbnail(bitmap, mImageSize, mImageSize, ThumbnailUtils.OPTIONS_RECYCLE_INPUT)};
+
+                            bitmap.recycle();
+                            //保存到本地目录
+                            FileUtil.saveImageToSD(file.getAbsolutePath(), bitmap1[0], 100);
+
+                            mActivity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if ((int) ivThumb.getTag() == position) {
+                                        ivThumb.setImageBitmap(bitmap1[0]);
+                                    }
+                                    bitmap1[0] = null;
+                                }
+                            });
+                        }
+                    }).start();
+                }
             } else {
                 llBottom.setVisibility(View.GONE);
+
                 imagePicker.getImageLoader().displayImage(mActivity, imageItem.path, ivThumb, mImageSize, mImageSize); //显示图片
             }
 

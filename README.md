@@ -13,7 +13,7 @@ Android自定义相册，完全仿微信UI，实现了拍照、图片选择（�
 
 使用前，对于Android Studio的用户，可以选择添加:
 ```
-	compile 'com.github.pao11:ImagePickerRelease:1.0.0'  //指定版本
+	compile 'com.github.pao11:ImagePickerRelease:1.1.0'  //指定版本
 ```
 
 ## 2.功能和参数含义
@@ -94,6 +94,9 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 ```
 
 ## 更新日志
+
+V 1.1.0
+ * 增加优化视频缩略图展示效果，做本地保存
 
 V 1.0.0
  * 增加可以选择视频文件的选项，仿照微信

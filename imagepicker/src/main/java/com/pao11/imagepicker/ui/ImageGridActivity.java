@@ -21,6 +21,7 @@ import android.widget.TextView;
 import com.pao11.imagepicker.DataHolder;
 import com.pao11.imagepicker.ImageDataSource;
 import com.pao11.imagepicker.ImagePicker;
+import com.pao11.imagepicker.R;
 import com.pao11.imagepicker.adapter.ImageFolderAdapter;
 import com.pao11.imagepicker.adapter.ImageRecyclerAdapter;
 import com.pao11.imagepicker.bean.ImageFolder;
@@ -112,6 +113,9 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
         mllDir = findViewById(com.pao11.imagepicker.R.id.ll_dir);
         mllDir.setOnClickListener(this);
         mtvDir = (TextView) findViewById(com.pao11.imagepicker.R.id.tv_dir);
+        mtvDir.setText(ImagePicker.getInstance().isLoadVideos() ?
+                getResources().getString(R.string.ip_all_images_and_videos)
+                : getResources().getString(R.string.ip_all_images));
         if (imagePicker.isMultiMode()) {
             mBtnOk.setVisibility(View.VISIBLE);
             mBtnPre.setVisibility(View.VISIBLE);
@@ -248,7 +252,13 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
     public void onVideoLoaded(List<ImageFolder> imageFolders) {
         this.mImageFolders = imageFolders;
         imagePicker.setImageFolders(imageFolders);
+        if (imageFolders.size() == 0) {
+            mRecyclerAdapter.refreshData(null);
+        } else {
+            mRecyclerAdapter.refreshData(imageFolders.get(0).images);
+        }
         mImageFolderAdapter.refreshData(imageFolders);
+
     }
 
     @Override

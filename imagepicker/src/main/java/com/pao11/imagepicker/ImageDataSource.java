@@ -98,6 +98,10 @@ public class ImageDataSource implements LoaderManager.LoaderCallbacks<Cursor> {
         if (loader.getId() == LOADER_ALL_VIDEO) {
             if (data != null) {
                 ArrayList<ImageItem> allVideos = new ArrayList<>();   //所有图片的集合,不分文件夹
+                ArrayList<ImageItem> images = new ArrayList<>();
+                if (imageFolders.size() > 0) {
+                    images.addAll(imageFolders.get(0).images);
+                }
                 while (data.moveToNext()) {
                     //查询数据
                     String videoName = data.getString(data.getColumnIndexOrThrow(VIDEO_PROJECTION[0]));
@@ -125,22 +129,13 @@ public class ImageDataSource implements LoaderManager.LoaderCallbacks<Cursor> {
                     imageItem.addTime = videoAddTime;
                     imageItem.duration = videoDuration;
                     allVideos.add(imageItem);
-                    //根据父路径分类存放图片
-//                    File videoFile = new File(videoPath);
-//                    File videoParentFile = videoFile.getParentFile();
-//                    ImageFolder videoFolder = new ImageFolder();
-//                    videoFolder.name = videoParentFile.getName();
-//                    videoFolder.path = videoParentFile.getAbsolutePath();
-//
-//                    if (!imageFolders.contains(videoFolder)) {
-//                        ArrayList<ImageItem> videos = new ArrayList<>();
-//                        videos.add(imageItem);
-//                        videoFolder.cover = imageItem;
-//                        videoFolder.images = videos;
-//                        imageFolders.add(videoFolder);
-//                    } else {
-//                        imageFolders.get(imageFolders.indexOf(videoFolder)).images.add(imageItem);
-//                    }
+                    //将视频放到图片和视频中
+                    for (ImageItem image : images) {
+                        if (image.addTime < videoAddTime) {
+                            imageFolders.get(0).images.add(imageFolders.get(0).images.indexOf(image), imageItem);
+                            break;
+                        }
+                    }
                 }
                 //防止没有视频报异常
                 if (data.getCount() > 0 && allVideos.size()>0) {
@@ -210,7 +205,9 @@ public class ImageDataSource implements LoaderManager.LoaderCallbacks<Cursor> {
                     //构造所有图片的集合
                     ImageFolder allImagesFolder = new ImageFolder();
                     allImagesFolder.content_type = MediaStore.Images.Media.CONTENT_TYPE;
-                    allImagesFolder.name = activity.getResources().getString(R.string.ip_all_images);
+                    allImagesFolder.name = ImagePicker.getInstance().isLoadVideos() ?
+                            activity.getResources().getString(R.string.ip_all_images_and_videos)
+                            : activity.getResources().getString(R.string.ip_all_images);
                     allImagesFolder.path = "/";
                     allImagesFolder.cover = allImages.get(0);
                     allImagesFolder.images = allImages;

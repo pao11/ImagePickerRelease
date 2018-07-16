@@ -75,16 +75,16 @@ public class ImagePageAdapter extends PagerAdapter {
 
                     @Override
                     public void run() {
-                        final Bitmap[] bitmap = {ThumbnailUtils.createVideoThumbnail(imageItem.path, MediaStore.Video.Thumbnails.MINI_KIND)};
+                        final Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(imageItem.path, MediaStore.Video.Thumbnails.MINI_KIND);
                         //保存到本地目录
-                        FileUtil.saveImageToSD(file.getAbsolutePath(), bitmap[0], 100);
+                        FileUtil.saveImageToSD(file.getAbsolutePath(), bitmap, 100);
+                        bitmap.recycle();
                         mActivity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 if ((int) photoView.getTag() == position) {
-                                    photoView.setImageBitmap(bitmap[0]);
+                                    imagePicker.getImageLoader().displayImage(mActivity, file.getAbsolutePath(), photoView, screenWidth, screenHeight); //显示本地图片
                                 }
-                                bitmap[0] = null;
                             }
                         });
                     }

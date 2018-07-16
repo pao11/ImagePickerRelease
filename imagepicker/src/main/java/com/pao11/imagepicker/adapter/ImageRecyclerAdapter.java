@@ -191,26 +191,26 @@ public class ImageRecyclerAdapter extends RecyclerView.Adapter<ViewHolder> {
                         @Override
                         public void run() {
                             Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(imageItem.path, MediaStore.Video.Thumbnails.MINI_KIND);
-                            final Bitmap[] bitmap1 = {ThumbnailUtils.extractThumbnail(bitmap, mImageSize, mImageSize, ThumbnailUtils.OPTIONS_RECYCLE_INPUT)};
+                            final Bitmap bitmap1 = ThumbnailUtils.extractThumbnail(bitmap, mImageSize, mImageSize, ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
 
                             bitmap.recycle();
                             //保存到本地目录
-                            FileUtil.saveImageToSD(file.getAbsolutePath(), bitmap1[0], 100);
+                            FileUtil.saveImageToSD(file.getAbsolutePath(), bitmap1, 100);
+                            bitmap1.recycle();
 
                             mActivity.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
                                     if ((int) ivThumb.getTag() == position) {
-                                        ivThumb.setImageBitmap(bitmap1[0]);
+                                        imagePicker.getImageLoader().displayImage(mActivity, file.getAbsolutePath(), ivThumb, mImageSize, mImageSize);
                                     }
-                                    bitmap1[0] = null;
                                 }
                             });
                         }
                     }).start();
                 }
             } else {
-                llBottom.setVisibility(View.GONE);
+                llBottom.setVisibility(View.INVISIBLE);
 
                 imagePicker.getImageLoader().displayImage(mActivity, imageItem.path, ivThumb, mImageSize, mImageSize); //显示图片
             }

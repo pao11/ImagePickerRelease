@@ -102,6 +102,8 @@ public class ImageDataSource implements LoaderManager.LoaderCallbacks<Cursor> {
                 if (imageFolders.size() > 0) {
                     images.addAll(imageFolders.get(0).images);
                 }
+                int start_i = 0;
+                int t_size = images.size();
                 while (data.moveToNext()) {
                     //查询数据
                     String videoName = data.getString(data.getColumnIndexOrThrow(VIDEO_PROJECTION[0]));
@@ -130,10 +132,19 @@ public class ImageDataSource implements LoaderManager.LoaderCallbacks<Cursor> {
                     imageItem.duration = videoDuration;
                     allVideos.add(imageItem);
                     //将视频放到图片和视频中
-                    for (ImageItem image : images) {
-                        if (image.addTime < videoAddTime) {
-                            imageFolders.get(0).images.add(imageFolders.get(0).images.indexOf(image), imageItem);
-                            break;
+                    if (start_i == t_size) {
+                        imageFolders.get(0).images.add(imageItem);
+                    } else {
+                        for (int i = start_i; i < t_size; i++) {
+                            ImageItem imgItem = images.get(i);
+                            if (imgItem.addTime < videoAddTime) {
+                                imageFolders.get(0).images.add(imageFolders.get(0).images.indexOf(imgItem), imageItem);
+                                start_i = i;
+                                break;
+                            } else if (i == t_size - 1) {
+                                start_i = t_size;
+                                imageFolders.get(0).images.add(imageItem);
+                            }
                         }
                     }
                 }

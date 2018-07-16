@@ -106,19 +106,20 @@ public class ImageFolderAdapter extends BaseAdapter {
                     @Override
                     public void run() {
                         Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(folder.cover.path, MediaStore.Video.Thumbnails.MINI_KIND);
-                        final Bitmap[] bitmap1 = {ThumbnailUtils.extractThumbnail(bitmap, mImageSize, mImageSize, ThumbnailUtils.OPTIONS_RECYCLE_INPUT)};
+                        final Bitmap bitmap1 = ThumbnailUtils.extractThumbnail(bitmap, mImageSize, mImageSize, ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
 
                         bitmap.recycle();
                         //保存到本地目录
-                        FileUtil.saveImageToSD(file.getAbsolutePath(), bitmap1[0], 100);
+                        FileUtil.saveImageToSD(file.getAbsolutePath(), bitmap1, 100);
+                        bitmap1.recycle();
 
                         mActivity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 if ((int) holder.cover.getTag() == position) {
-                                    holder.cover.setImageBitmap(bitmap1[0]);
+                                    imagePicker.getImageLoader().displayImage(mActivity, file.getAbsolutePath(), holder.cover, mImageSize, mImageSize); //显示本地图片
+
                                 }
-                                bitmap1[0] = null;
                             }
                         });
                     }

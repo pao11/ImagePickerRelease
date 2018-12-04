@@ -3,6 +3,7 @@ package com.pao11.imagepicker;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.IntRange;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -27,6 +28,7 @@ public class ImageDataSource implements LoaderManager.LoaderCallbacks<Cursor> {
     public static final int LOADER_ALL = 0;         //加载所有图片
     public static final int LOADER_CATEGORY = 1;    //分类加载图片
     public static final int LOADER_ALL_VIDEO = 2;   //加载所有视频
+    public static final int LOADER_FIRST_IMG = 3;   //加载第一张图片
     private final String[] IMAGE_PROJECTION = {     //查询图片需要的数据列
             MediaStore.Images.Media.DISPLAY_NAME,   //图片的显示名称  aaa.jpg
             MediaStore.Images.Media.DATA,           //图片的真实路径  /storage/emulated/0/pp/downloader/wallpaper/aaa.jpg
@@ -70,6 +72,29 @@ public class ImageDataSource implements LoaderManager.LoaderCallbacks<Cursor> {
     }
 
     /**
+     *
+     * @param activity
+     * @param path
+     * @param loadedListener
+     * @param load_type
+     */
+    public ImageDataSource(FragmentActivity activity, String path, OnImagesLoadedListener loadedListener,
+                           @IntRange(from = 0, to = 3) int load_type) {
+        this.activity = activity;
+        this.loadedListener = loadedListener;
+
+        LoaderManager loaderManager = activity.getSupportLoaderManager();
+        if (path == null) {
+            loaderManager.initLoader(load_type, null, this);//加载所有的图片
+        } else {
+            //加载指定目录的图片
+            Bundle bundle = new Bundle();
+            bundle.putString("path", path);
+            loaderManager.initLoader(load_type, bundle, this);
+        }
+    }
+
+    /**
      * 加载所有的视频文件
      */
     public void loaderAllVideos() {
@@ -80,15 +105,24 @@ public class ImageDataSource implements LoaderManager.LoaderCallbacks<Cursor> {
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         CursorLoader cursorLoader = null;
-        //扫描所有图片
-        if (id == LOADER_ALL)
-            cursorLoader = new CursorLoader(activity, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, IMAGE_PROJECTION, null, null, IMAGE_PROJECTION[6] + " DESC");
-        //扫描某个图片文件夹
-        if (id == LOADER_CATEGORY)
-            cursorLoader = new CursorLoader(activity, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, IMAGE_PROJECTION, IMAGE_PROJECTION[1] + " like '%" + args.getString("path") + "%'", null, IMAGE_PROJECTION[6] + " DESC");
-        //扫描所有视频
-        if (id == LOADER_ALL_VIDEO)
-            cursorLoader = new CursorLoader(activity, MediaStore.Video.Media.EXTERNAL_CONTENT_URI, VIDEO_PROJECTION, null, null, VIDEO_PROJECTION[6] + " DESC");
+        switch (id) {
+            case LOADER_ALL:
+                //扫描所有图片
+                cursorLoader = new CursorLoader(activity, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, IMAGE_PROJECTION, null, null, IMAGE_PROJECTION[6] + " DESC");
+                break;
+            case LOADER_CATEGORY:
+                //扫描某个图片文件夹
+                cursorLoader = new CursorLoader(activity, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, IMAGE_PROJECTION, IMAGE_PROJECTION[1] + " like '%" + args.getString("path") + "%'", null, IMAGE_PROJECTION[6] + " DESC");
+                break;
+            case LOADER_ALL_VIDEO:
+                //扫描所有视频
+                cursorLoader = new CursorLoader(activity, MediaStore.Video.Media.EXTERNAL_CONTENT_URI, VIDEO_PROJECTION, null, null, VIDEO_PROJECTION[6] + " DESC");
+                break;
+            case LOADER_FIRST_IMG:
+                //读取第一张图片
+                cursorLoader = new CursorLoader(activity, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, IMAGE_PROJECTION, null, null, IMAGE_PROJECTION[6] + " DESC LIMIT 1");
+                break;
+        }
 
         return cursorLoader;
     }

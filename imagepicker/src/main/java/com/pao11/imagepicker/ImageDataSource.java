@@ -3,7 +3,6 @@ package com.pao11.imagepicker;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.annotation.IntRange;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -78,21 +77,21 @@ public class ImageDataSource implements LoaderManager.LoaderCallbacks<Cursor> {
      * @param loadedListener
      * @param load_type
      */
-    public ImageDataSource(FragmentActivity activity, String path, OnImagesLoadedListener loadedListener,
-                           @IntRange(from = 0, to = 3) int load_type) {
-        this.activity = activity;
-        this.loadedListener = loadedListener;
-
-        LoaderManager loaderManager = activity.getSupportLoaderManager();
-        if (path == null) {
-            loaderManager.initLoader(load_type, null, this);//加载所有的图片
-        } else {
-            //加载指定目录的图片
-            Bundle bundle = new Bundle();
-            bundle.putString("path", path);
-            loaderManager.initLoader(load_type, bundle, this);
-        }
-    }
+//    public ImageDataSource(FragmentActivity activity, String path, OnImagesLoadedListener loadedListener,
+//                           @IntRange(from = 0, to = 3) int load_type) {
+//        this.activity = activity;
+//        this.loadedListener = loadedListener;
+//
+//        LoaderManager loaderManager = activity.getSupportLoaderManager();
+//        if (path == null) {
+//            loaderManager.initLoader(load_type, null, this);//加载所有的图片
+//        } else {
+//            //加载指定目录的图片
+//            Bundle bundle = new Bundle();
+//            bundle.putString("path", path);
+//            loaderManager.initLoader(load_type, bundle, this);
+//        }
+//    }
 
     /**
      * 加载所有的视频文件

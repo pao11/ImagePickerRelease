@@ -3,6 +3,7 @@ package com.pao11.imagepicker;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.IntRange;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -77,21 +78,21 @@ public class ImageDataSource implements LoaderManager.LoaderCallbacks<Cursor> {
      * @param loadedListener
      * @param load_type
      */
-//    public ImageDataSource(FragmentActivity activity, String path, OnImagesLoadedListener loadedListener,
-//                           @IntRange(from = 0, to = 3) int load_type) {
-//        this.activity = activity;
-//        this.loadedListener = loadedListener;
-//
-//        LoaderManager loaderManager = activity.getSupportLoaderManager();
-//        if (path == null) {
-//            loaderManager.initLoader(load_type, null, this);//加载所有的图片
-//        } else {
-//            //加载指定目录的图片
-//            Bundle bundle = new Bundle();
-//            bundle.putString("path", path);
-//            loaderManager.initLoader(load_type, bundle, this);
-//        }
-//    }
+    public ImageDataSource(FragmentActivity activity, String path, OnImagesLoadedListener loadedListener,
+                           @IntRange(from = 0, to = 3) int load_type) {
+        this.activity = activity;
+        this.loadedListener = loadedListener;
+
+        LoaderManager loaderManager = activity.getSupportLoaderManager();
+        if (path == null) {
+            loaderManager.initLoader(load_type, null, this);//加载所有的图片
+        } else {
+            //加载指定目录的图片
+            Bundle bundle = new Bundle();
+            bundle.putString("path", path);
+            loaderManager.initLoader(load_type, bundle, this);
+        }
+    }
 
     /**
      * 加载所有的视频文件
@@ -166,7 +167,23 @@ public class ImageDataSource implements LoaderManager.LoaderCallbacks<Cursor> {
                     allVideos.add(imageItem);
                     //将视频放到图片和视频中
                     if (start_i == t_size) {
-                        imageFolders.get(0).images.add(imageItem);
+                        if (t_size == 0) {
+                            File imageFile = new File(videoPath);
+                            File imageParentFile = imageFile.getParentFile();
+                            ImageFolder imageFolder = new ImageFolder();
+                            imageFolder.content_type = MediaStore.Images.Media.CONTENT_TYPE;
+                            imageFolder.name = imageParentFile.getName();
+                            imageFolder.path = imageParentFile.getAbsolutePath();
+                            ArrayList<ImageItem> tem_images = new ArrayList<>();
+                            tem_images.add(imageItem);
+                            imageFolder.cover = imageItem;
+                            imageFolder.images = tem_images;
+                            imageFolders.add(imageFolder);
+                            t_size = 1;
+                            start_i = 1;
+                        } else {
+                            imageFolders.get(0).images.add(imageItem);
+                        }
                     } else {
                         for (int i = start_i; i < t_size; i++) {
                             ImageItem imgItem = images.get(i);

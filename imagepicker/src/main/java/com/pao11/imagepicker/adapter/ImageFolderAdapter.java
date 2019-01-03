@@ -110,19 +110,21 @@ public class ImageFolderAdapter extends BaseAdapter {
                             final Bitmap bitmap1 = ThumbnailUtils.extractThumbnail(bitmap, mImageSize, mImageSize, ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
 
                             bitmap.recycle();
-                            //保存到本地目录
-                            FileUtil.saveImageToSD(file.getAbsolutePath(), bitmap1, 100);
-                            bitmap1.recycle();
 
-                            mActivity.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if ((int) holder.cover.getTag() == position) {
-                                        imagePicker.getImageLoader().displayImage(mActivity, file.getAbsolutePath(), holder.cover, mImageSize, mImageSize); //显示本地图片
+                            if (null != bitmap1 && !bitmap1.isRecycled()) {
+                                //保存到本地目录
+                                FileUtil.saveImageToSD(file.getAbsolutePath(), bitmap1, 100);
+                                bitmap1.recycle();
+                                mActivity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if ((int) holder.cover.getTag() == position) {
+                                            imagePicker.getImageLoader().displayImage(mActivity, file.getAbsolutePath(), holder.cover, mImageSize, mImageSize); //显示本地图片
 
+                                        }
                                     }
-                                }
-                            });
+                                });
+                            }
                         }
                     }
                 }).start();

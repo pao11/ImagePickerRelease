@@ -195,18 +195,19 @@ public class ImageRecyclerAdapter extends RecyclerView.Adapter<ViewHolder> {
                                 final Bitmap bitmap1 = ThumbnailUtils.extractThumbnail(bitmap, mImageSize, mImageSize, ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
 
                                 bitmap.recycle();
-                                //保存到本地目录
-                                FileUtil.saveImageToSD(file.getAbsolutePath(), bitmap1, 100);
-                                bitmap1.recycle();
-
-                                mActivity.runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if ((int) ivThumb.getTag() == position) {
-                                            imagePicker.getImageLoader().displayImage(mActivity, file.getAbsolutePath(), ivThumb, mImageSize, mImageSize);
+                                if (null != bitmap1 && !bitmap1.isRecycled()) {
+                                    //保存到本地目录
+                                    FileUtil.saveImageToSD(file.getAbsolutePath(), bitmap1, 100);
+                                    bitmap1.recycle();
+                                    mActivity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if ((int) ivThumb.getTag() == position) {
+                                                imagePicker.getImageLoader().displayImage(mActivity, file.getAbsolutePath(), ivThumb, mImageSize, mImageSize);
+                                            }
                                         }
-                                    }
-                                });
+                                    });
+                                }
                             }
 
                         }

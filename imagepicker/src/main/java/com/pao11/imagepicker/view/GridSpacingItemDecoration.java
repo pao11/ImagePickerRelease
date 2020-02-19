@@ -1,8 +1,9 @@
 package com.pao11.imagepicker.view;
 
 import android.graphics.Rect;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * 描述   : 为Recyclerview 的GridLayoutManager添加列间距

@@ -29,7 +29,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 /**
- * 加载相册图片的RecyclerView适配器
+ * 加载相册视频的RecyclerView适配器
  *
  * 用于替换原项目的GridView，使用局部刷新解决选中照片出现闪动问题
  *
@@ -37,10 +37,10 @@ import java.util.ArrayList;
  *
  * 但还是会出现明显的重新加载图片，可能是picasso图片加载框架的问题
  *
- * Date: 2017-06-30
+ * Date: 2020-02-18
  */
 
-public class ImageRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class VideoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 
     private static final int ITEM_TYPE_CAMERA = 0;  //第一个条目是相机
@@ -72,7 +72,7 @@ public class ImageRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
     /**
      * 构造方法
      */
-    public ImageRecyclerAdapter(Activity activity, ArrayList<ImageItem> images) {
+    public VideoRecyclerAdapter(Activity activity, ArrayList<ImageItem> images) {
         System.out.println("adapter>>>>>>>>>>>gouzao");
         this.mActivity = activity;
         if (images == null || images.size() == 0) this.images = new ArrayList<>();
@@ -234,7 +234,7 @@ public class ImageRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
                     cbCheck.setChecked(!cbCheck.isChecked());
                     int selectLimit = imagePicker.getSelectLimit();
                     if (cbCheck.isChecked() && mSelectedImages.size() >= selectLimit) {
-                        Toast.makeText(mActivity.getApplicationContext(), mActivity.getString(com.pao11.imagepicker.R.string.ip_select_limit, selectLimit), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mActivity.getApplicationContext(), mActivity.getString(com.pao11.imagepicker.R.string.ip_select_video_limit, selectLimit), Toast.LENGTH_SHORT).show();
                         cbCheck.setChecked(false);
                         mask.setVisibility(View.GONE);
                     } else {

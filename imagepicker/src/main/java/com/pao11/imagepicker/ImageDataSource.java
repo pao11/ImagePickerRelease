@@ -3,14 +3,16 @@ package com.pao11.imagepicker;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.annotation.IntRange;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
+
+import androidx.annotation.IntRange;
+import androidx.fragment.app.FragmentActivity;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
 
 import com.pao11.imagepicker.bean.ImageFolder;
 import com.pao11.imagepicker.bean.ImageItem;
+import com.pao11.imagepicker.ui.VideoGridActivity;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -138,6 +140,7 @@ public class ImageDataSource implements LoaderManager.LoaderCallbacks<Cursor> {
                 }
                 int start_i = 0;
                 int t_size = images.size();
+
                 while (data.moveToNext()) {
                     //查询数据
                     String videoName = data.getString(data.getColumnIndexOrThrow(VIDEO_PROJECTION[0]));
@@ -207,7 +210,12 @@ public class ImageDataSource implements LoaderManager.LoaderCallbacks<Cursor> {
                     allImagesFolder.path = "/";
                     allImagesFolder.cover = allVideos.get(0);
                     allImagesFolder.images = allVideos;
-                    imageFolders.add(1, allImagesFolder);  //确保第二条是所有视频
+                    if (activity instanceof VideoGridActivity) {
+                        imageFolders.add(0, allImagesFolder);
+
+                    } else {
+                        imageFolders.add(1, allImagesFolder);  //确保第二条是所有视频
+                    }
                 }
             }
 
@@ -215,8 +223,9 @@ public class ImageDataSource implements LoaderManager.LoaderCallbacks<Cursor> {
             ImagePicker.getInstance().setImageFolders(imageFolders);
             loadedListener.onVideoLoaded(imageFolders);
         } else {
-            imageFolders.clear();
             if (data != null) {
+//                data.move(-1);
+//                imageFolders.clear();
                 ArrayList<ImageItem> allImages = new ArrayList<>();   //所有图片的集合,不分文件夹
                 while (data.moveToNext()) {
                     //查询数据
@@ -284,7 +293,7 @@ public class ImageDataSource implements LoaderManager.LoaderCallbacks<Cursor> {
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        System.out.println("--------");
+        System.out.println("--------onLoaderReset");
     }
 
     /** 所有图片加载完成的回调接口 */

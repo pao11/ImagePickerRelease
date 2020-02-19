@@ -2,16 +2,18 @@ package com.pao11.imagepickerdemo.wxdemo;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.AdapterView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.pao11.imagepicker.ImagePicker;
 import com.pao11.imagepicker.bean.ImageItem;
 import com.pao11.imagepicker.ui.ImageGridActivity;
 import com.pao11.imagepicker.ui.ImagePreviewDelActivity;
+import com.pao11.imagepicker.ui.VideoGridActivity;
 import com.pao11.imagepicker.view.CropImageView;
 import com.pao11.imagepickerdemo.R;
 import com.pao11.imagepickerdemo.SelectDialog;
@@ -88,6 +90,7 @@ public class WxDemoActivity extends AppCompatActivity implements ImagePickerAdap
                 List<String> names = new ArrayList<>();
                 names.add("拍照");
                 names.add("相册");
+                names.add("视频");
                 showDialog(new SelectDialog.SelectDialogListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -115,6 +118,14 @@ public class WxDemoActivity extends AppCompatActivity implements ImagePickerAdap
                                  * */
 //                                intent1.putExtra(ImageGridActivity.EXTRAS_IMAGES,images);
                                 startActivityForResult(intent1, REQUEST_CODE_SELECT);
+                                break;
+                            case 2:
+                                //打开选择,本次允许选择的数量
+                                ImagePicker.getInstance().setSelectLimit(maxImgCount - selImageList.size());
+                                Intent intent2 = new Intent(WxDemoActivity.this, VideoGridActivity.class);
+
+//                                intent2.putExtra(ImageGridActivity.EXTRAS_IMAGES,images);
+                                startActivityForResult(intent2, REQUEST_CODE_SELECT);
                                 break;
                             default:
                                 break;

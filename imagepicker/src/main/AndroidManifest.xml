@@ -19,6 +19,10 @@
             android:configChanges="orientation|screenSize"
             android:theme="@style/ImagePickerTheme"/>
         <activity
+            android:name="com.pao11.imagepicker.ui.VideoGridActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/ImagePickerTheme"/>
+        <activity
             android:name="com.pao11.imagepicker.ui.ImageCropActivity"
             android:configChanges="orientation|screenSize"
             android:hardwareAccelerated="false"

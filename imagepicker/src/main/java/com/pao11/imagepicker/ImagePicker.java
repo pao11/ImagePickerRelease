@@ -7,13 +7,13 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v4.content.FileProvider;
 import android.util.Log;
+
+import androidx.core.content.FileProvider;
 
 import com.pao11.imagepicker.bean.ImageFolder;
 import com.pao11.imagepicker.bean.ImageItem;
@@ -270,7 +270,7 @@ public class ImagePicker {
                 // 如果没有指定uri，则data就返回有数据！
 
                 Uri uri;
-                if (VERSION.SDK_INT <= VERSION_CODES.M) {
+                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
                     uri = Uri.fromFile(takeImageFile);
                 } else {
 

@@ -1,5 +1,6 @@
 package com.pao11.imagepicker.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -18,11 +19,12 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.support.v4.view.ViewCompat;
-import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.MotionEvent;
+
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.core.view.ViewCompat;
 
 import java.io.File;
 import java.io.IOException;
@@ -560,6 +562,7 @@ public class CropImageView extends AppCompatImageView {
     }
 
     /** 将图片保存在本地 */
+    @SuppressLint("WrongThread")
     private void saveOutput(Bitmap croppedImage, Bitmap.CompressFormat outputFormat, File saveFile) {
         OutputStream outputStream = null;
         try {

@@ -3,7 +3,6 @@ package com.pao11.imagepicker.ui;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v4.view.ViewPager;
 import android.text.format.Formatter;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +10,8 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Toast;
+
+import androidx.viewpager.widget.ViewPager;
 
 import com.pao11.imagepicker.ImagePicker;
 import com.pao11.imagepicker.bean.ImageItem;
@@ -73,6 +74,7 @@ public class ImagePreviewActivity extends ImagePreviewBaseActivity implements Im
                 mTitleCount.setText(getString(com.pao11.imagepicker.R.string.ip_preview_image_count, mCurrentPosition + 1, mImageItems.size()));
             }
         });
+        
         //当点击当前选中按钮的时候，需要根据当前的选中状态添加和移除图片
         mCbCheck.setOnClickListener(new View.OnClickListener() {
             @Override

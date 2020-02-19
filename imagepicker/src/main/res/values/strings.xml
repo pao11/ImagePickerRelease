@@ -5,6 +5,7 @@
     <string name="ip_folder_image_count">共%1$d张</string>
     <string name="ip_preview_image_count">%1$d/%2$d</string>
     <string name="ip_select_limit">最多选择%1$d张图片</string>
+    <string name="ip_select_video_limit">最多选择%1$d个视频</string>
     <string name="ip_complete">完成</string>
     <string name="ip_select_complete">完成(%1$d/%2$d)</string>
     <string name="ip_preview">预览</string>

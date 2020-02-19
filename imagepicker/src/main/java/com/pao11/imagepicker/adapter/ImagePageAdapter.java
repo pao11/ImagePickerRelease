@@ -1,24 +1,32 @@
 package com.pao11.imagepicker.adapter;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.ThumbnailUtils;
+import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
-import android.support.v4.view.PagerAdapter;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
+import androidx.core.content.FileProvider;
+import androidx.viewpager.widget.PagerAdapter;
+
+import com.github.chrisbanes.photoview.OnPhotoTapListener;
+import com.github.chrisbanes.photoview.PhotoView;
 import com.pao11.imagepicker.ImagePicker;
+import com.pao11.imagepicker.R;
 import com.pao11.imagepicker.bean.ImageItem;
 import com.pao11.imagepicker.util.FileUtil;
+import com.pao11.imagepicker.util.ProviderUtil;
 import com.pao11.imagepicker.util.Utils;
 
 import java.io.File;
 import java.util.ArrayList;
 
-import uk.co.senab.photoview.PhotoView;
-import uk.co.senab.photoview.PhotoViewAttacher;
 
 /**
  * ================================================
@@ -56,9 +64,13 @@ public class ImagePageAdapter extends PagerAdapter {
 
     @Override
     public Object instantiateItem(ViewGroup container, final int position) {
-        final PhotoView photoView = new PhotoView(mActivity);
+//        final PhotoView photoView = new PhotoView(mActivity);
+        View temView = View.inflate(container.getContext(), R.layout.adapter_image_page, null);
+        final PhotoView photoView = temView.findViewById(R.id.pv_photoview);
+        final ImageView iv_player = temView.findViewById(R.id.iv_player);
         final ImageItem imageItem = images.get(position);
         if (imageItem.mimeType.startsWith("video")) {
+            iv_player.setVisibility(View.VISIBLE);
             String fileName = FileUtil.Md5FileNameGenerate(imageItem.path, "jpg");
 
             File cacheRoot = FileUtil.getIndividualCacheDirectory(mActivity);
@@ -93,18 +105,40 @@ public class ImagePageAdapter extends PagerAdapter {
                 }).start();
 
             }
+            iv_player.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent();
+                    intent.setAction(android.content.Intent.ACTION_VIEW);
+                    File file = new File(imageItem.path);
+                    Uri uri;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        Uri contentUri = FileProvider.getUriForFile(mActivity, ProviderUtil.getFileProviderName(mActivity), file);
+                        intent.setDataAndType(contentUri, "video/*");
+                    } else {
+                        uri = Uri.fromFile(file);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.setDataAndType(uri, "video/*");
+                    }
+
+                    mActivity.startActivity(intent);
+                }
+            });
 
         } else {
+            iv_player.setVisibility(View.INVISIBLE);
             imagePicker.getImageLoader().displayImagePreview(mActivity, imageItem.path, photoView, screenWidth, screenHeight);
         }
-        photoView.setOnPhotoTapListener(new PhotoViewAttacher.OnPhotoTapListener() {
+
+        photoView.setOnPhotoTapListener(new OnPhotoTapListener() {
             @Override
-            public void onPhotoTap(View view, float x, float y) {
+            public void onPhotoTap(ImageView view, float x, float y) {
                 if (listener != null) listener.OnPhotoTapListener(view, x, y);
             }
         });
-        container.addView(photoView);
-        return photoView;
+        container.addView(temView);
+        return temView;
     }
 
     @Override

@@ -183,7 +183,6 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
             }
             //点击文件夹按钮
             createPopupFolderList();
-            System.out.println(">>>>>>>>>>>>>>>>>5");
 
             mImageFolderAdapter.refreshData(mImageFolders);  //刷新数据
             if (mFolderPopupWindow.isShowing()) {
@@ -222,7 +221,6 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
                 ImageFolder imageFolder = (ImageFolder) adapterView.getAdapter().getItem(position);
                 if (null != imageFolder) {
 //                    mImageGridAdapter.refreshData(imageFolder.images);
-                    System.out.println(">>>>>>>>>>>>>>>>>6");
 
                     mRecyclerAdapter.refreshData(imageFolder.images);
                     mtvDir.setText(imageFolder.name);
@@ -238,11 +236,9 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
         imagePicker.setImageFolders(imageFolders);
         if (imageFolders.size() == 0) {
 //            mImageGridAdapter.refreshData(null);
-            System.out.println(">>>>>>>>>>>>>>>>>1");
             mRecyclerAdapter.refreshData(null);
         } else {
 //            mImageGridAdapter.refreshData(imageFolders.get(0).images);
-            System.out.println(">>>>>>>>>>>>>>>>>2");
 
             mRecyclerAdapter.refreshData(imageFolders.get(0).images);
         }
@@ -262,11 +258,9 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
         this.mImageFolders = imageFolders;
         imagePicker.setImageFolders(imageFolders);
         if (imageFolders.size() == 0) {
-            System.out.println(">>>>>>>>>>>>>>>>>3");
 
             mRecyclerAdapter.refreshData(null);
         } else {
-            System.out.println(">>>>>>>>>>>>>>>>>4");
 
             mRecyclerAdapter.refreshData(imageFolders.get(0).images);
         }

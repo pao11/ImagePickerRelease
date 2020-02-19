@@ -63,7 +63,6 @@ public class VideoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
     public void refreshData(ArrayList<ImageItem> images) {
-        System.out.println("adapter>>>>>>>>>>>refreshData");
         if (images == null || images.size() == 0) this.images = new ArrayList<>();
         else this.images = images;
         notifyDataSetChanged();
@@ -73,7 +72,6 @@ public class VideoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
      * 构造方法
      */
     public VideoRecyclerAdapter(Activity activity, ArrayList<ImageItem> images) {
-        System.out.println("adapter>>>>>>>>>>>gouzao");
         this.mActivity = activity;
         if (images == null || images.size() == 0) this.images = new ArrayList<>();
         else this.images = images;
@@ -115,7 +113,6 @@ public class VideoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     @Override
     public int getItemCount() {
-        System.out.println("adapter>>>>>>>>>>>" + images.size());
         return isShowCamera ? images.size() + 1 : images.size();
     }
 

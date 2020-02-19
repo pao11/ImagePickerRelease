@@ -204,7 +204,6 @@ public class VideoGridActivity extends ImageBaseActivity implements ImageDataSou
 
     @Override
     public void onVideoLoaded(List<ImageFolder> imageFolders) {
-        System.out.println(">>>>>>>>>>>>>>>>>1onVideoLoaded");
         this.mImageFolders = imageFolders;
         imagePicker.setImageFolders(imageFolders);
         if (imageFolders.size() == 0) {

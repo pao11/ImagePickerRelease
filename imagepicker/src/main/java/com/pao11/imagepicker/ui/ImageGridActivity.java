@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,6 +28,7 @@ import com.pao11.imagepicker.adapter.ImageFolderAdapter;
 import com.pao11.imagepicker.adapter.ImageRecyclerAdapter;
 import com.pao11.imagepicker.bean.ImageFolder;
 import com.pao11.imagepicker.bean.ImageItem;
+import com.pao11.imagepicker.util.BitmapUtil;
 import com.pao11.imagepicker.util.Utils;
 import com.pao11.imagepicker.view.FolderPopUpWindow;
 import com.pao11.imagepicker.view.GridSpacingItemDecoration;
@@ -85,7 +87,6 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
         setContentView(com.pao11.imagepicker.R.layout.activity_image_grid);
 
         imagePicker = ImagePicker.getInstance();
-        imagePicker.setShowCamera(true);
         imagePicker.clear();
         imagePicker.addOnImageSelectedListener(this);
 
@@ -337,7 +338,6 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (data != null && data.getExtras() != null) {
-            System.out.println(">>>>>>>>>>>>>>>" + mImageFolders.get(0).images.size());
             if (resultCode == ImagePicker.RESULT_CODE_BACK) {
                 isOrigin = data.getBooleanExtra(ImagePreviewActivity.ISORIGIN, false);
             } else {
@@ -379,6 +379,9 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
 
                 ImageItem imageItem = new ImageItem();
                 imageItem.path = path;
+                BitmapFactory.Options bitmapOptions = BitmapUtil.getBitmapOptions(path);
+                imageItem.width = bitmapOptions.outWidth;
+                imageItem.height = bitmapOptions.outHeight;
                 imagePicker.clearSelectedImages();
                 imagePicker.addSelectedImageItem(0, imageItem, true);
                 if (imagePicker.isCrop()) {

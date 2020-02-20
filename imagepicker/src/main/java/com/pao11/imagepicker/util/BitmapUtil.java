@@ -101,4 +101,17 @@ public class BitmapUtil {
         return rotateBitmapByDegree(bitmap,degree);
     }
 
+    /**
+     * 获取本地图片宽高
+     *
+     * @param filePath
+     * @return
+     */
+    public static BitmapFactory.Options getBitmapOptions(String filePath) {
+        BitmapFactory.Options var1 = new BitmapFactory.Options();
+        var1.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(filePath, var1);
+        return var1;
+    }
+
 }

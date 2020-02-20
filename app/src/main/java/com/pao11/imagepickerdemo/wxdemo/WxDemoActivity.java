@@ -112,6 +112,7 @@ public class WxDemoActivity extends AppCompatActivity implements ImagePickerAdap
                             case 1:
                                 //打开选择,本次允许选择的数量
                                 ImagePicker.getInstance().setSelectLimit(maxImgCount - selImageList.size());
+                                ImagePicker.getInstance().setShowCamera(true);
                                 Intent intent1 = new Intent(WxDemoActivity.this, ImageGridActivity.class);
                                 /* 如果需要进入选择的时候显示已经选中的图片，
                                  * 详情请查看ImagePickerActivity
@@ -122,6 +123,7 @@ public class WxDemoActivity extends AppCompatActivity implements ImagePickerAdap
                             case 2:
                                 //打开选择,本次允许选择的数量
                                 ImagePicker.getInstance().setSelectLimit(maxImgCount - selImageList.size());
+                                ImagePicker.getInstance().setShowCamera(false);
                                 Intent intent2 = new Intent(WxDemoActivity.this, VideoGridActivity.class);
 
 //                                intent2.putExtra(ImageGridActivity.EXTRAS_IMAGES,images);

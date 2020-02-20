@@ -110,6 +110,9 @@ public class ImageCropActivity extends ImageBaseActivity implements View.OnClick
         mImageItems.remove(0);
         ImageItem imageItem = new ImageItem();
         imageItem.path = file.getAbsolutePath();
+        BitmapFactory.Options bitmapOptions = BitmapUtil.getBitmapOptions(imageItem.path);
+        imageItem.width = bitmapOptions.outWidth;
+        imageItem.height = bitmapOptions.outHeight;
         mImageItems.add(imageItem);
 
         Intent intent = new Intent();

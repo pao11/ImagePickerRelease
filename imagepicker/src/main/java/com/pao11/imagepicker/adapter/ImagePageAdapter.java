@@ -69,7 +69,7 @@ public class ImagePageAdapter extends PagerAdapter {
         final PhotoView photoView = temView.findViewById(R.id.pv_photoview);
         final ImageView iv_player = temView.findViewById(R.id.iv_player);
         final ImageItem imageItem = images.get(position);
-        if (imageItem.mimeType.startsWith("video")) {
+        if (imageItem.mimeType != null && imageItem.mimeType.startsWith("video")) {
             iv_player.setVisibility(View.VISIBLE);
             String fileName = FileUtil.Md5FileNameGenerate(imageItem.path, "jpg");
 

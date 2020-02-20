@@ -18,6 +18,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.pao11.imagepicker.ImagePicker;
+import com.pao11.imagepicker.R;
 import com.pao11.imagepicker.bean.ImageItem;
 import com.pao11.imagepicker.ui.ImageBaseActivity;
 import com.pao11.imagepicker.ui.ImageGridActivity;
@@ -262,13 +263,16 @@ public class VideoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
     private class CameraViewHolder extends RecyclerView.ViewHolder {
 
         View mItemView;
+        TextView tvTitle;
 
         CameraViewHolder(View itemView) {
             super(itemView);
             mItemView = itemView;
+            tvTitle = itemView.findViewById(R.id.tv_title);
         }
 
         void bindCamera(){
+            tvTitle.setText("拍摄视频");
             mItemView.setLayoutParams(new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, mImageSize)); //让图片是个正方形
             mItemView.setTag(null);
             mItemView.setOnClickListener(new View.OnClickListener() {
@@ -277,7 +281,7 @@ public class VideoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
                     if (!((ImageBaseActivity) mActivity).checkPermission(Manifest.permission.CAMERA)) {
                         ActivityCompat.requestPermissions(mActivity, new String[]{Manifest.permission.CAMERA}, ImageGridActivity.REQUEST_PERMISSION_CAMERA);
                     } else {
-                        imagePicker.takePicture(mActivity, ImagePicker.REQUEST_CODE_TAKE);
+                        imagePicker.takeVideo(mActivity, ImagePicker.REQUEST_CODE_TAKE);
                     }
                 }
             });

@@ -3,8 +3,10 @@ package com.pao11.imagepicker.ui;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.MediaMetadataRetriever;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -74,7 +76,6 @@ public class VideoGridActivity extends ImageBaseActivity implements ImageDataSou
         setContentView(com.pao11.imagepicker.R.layout.activity_image_grid);
 
         imagePicker = ImagePicker.getInstance();
-        imagePicker.setShowCamera(false);
         imagePicker.clear();
         imagePicker.addOnImageSelectedListener(this);
 
@@ -130,7 +131,7 @@ public class VideoGridActivity extends ImageBaseActivity implements ImageDataSou
             }
         } else if (requestCode == REQUEST_PERMISSION_CAMERA) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                imagePicker.takePicture(this, ImagePicker.REQUEST_CODE_TAKE);
+                imagePicker.takeVideo(this, ImagePicker.REQUEST_CODE_TAKE);
             } else {
                 showToast("权限被禁止，无法打开相机");
             }
@@ -289,8 +290,54 @@ public class VideoGridActivity extends ImageBaseActivity implements ImageDataSou
                 setResult(ImagePicker.RESULT_CODE_ITEMS, data);
                 finish();
             }
+        } else {
+            //发送广播通知图片增加了
+            ImagePicker.galleryAddPic(this, imagePicker.getTakeImageFile());
+
+            String path = imagePicker.getTakeImageFile().getAbsolutePath();
+            ImageItem imageItem = new ImageItem();
+            imageItem.path = path;
+            setDataResourceForImageItem(imageItem);
+            imagePicker.clearSelectedImages();
+            imagePicker.addSelectedImageItem(0, imageItem, true);
+            Intent intent = new Intent();
+            intent.putExtra(ImagePicker.EXTRA_RESULT_ITEMS, imagePicker.getSelectedImages());
+            setResult(ImagePicker.RESULT_CODE_ITEMS, intent);   //单选不需要裁剪，返回数据
+            finish();
         }
     }
+
+    /**
+     * 给视频文件设置属性，包括时长、宽高、文件类型等
+     * @param imageItem
+     */
+    private void setDataResourceForImageItem(ImageItem imageItem) {
+        int[] meta = new int[2];
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(imageItem.path); //在获取前，设置文件路径（应该只能是本地路径）
+        String duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+        String rotation = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
+        String width = retriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);//宽
+        String height = retriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);//高
+        String mimetype = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
+        if (TextUtils.equals("90",rotation) || TextUtils.equals("270",rotation)) {
+            meta[0] = Integer.parseInt(height);
+            meta[1] = Integer.parseInt(width);
+        } else {
+            meta[0] = Integer.parseInt(width);
+            meta[1] = Integer.parseInt(height);
+        }
+        try {
+            retriever.release();
+        } catch (RuntimeException ex) {
+            // Ignore failures while cleaning up.
+        }
+        imageItem.width = meta[0];
+        imageItem.height = meta[1];
+        imageItem.duration = Long.parseLong(duration);
+        imageItem.mimeType = mimetype;
+    }
+
 
     @Override
     protected void onDestroy() {

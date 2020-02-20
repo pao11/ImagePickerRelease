@@ -153,7 +153,7 @@ public class ImageRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
 
         void bind(final int position){
             final ImageItem imageItem = getItem(position);
-            if (imageItem.mimeType.startsWith("video")) {
+            if (imageItem.mimeType != null && imageItem.mimeType.startsWith("video")) {
                 llBottom.setVisibility(View.VISIBLE);
                 long dur = imageItem.duration;
                 String durStr;

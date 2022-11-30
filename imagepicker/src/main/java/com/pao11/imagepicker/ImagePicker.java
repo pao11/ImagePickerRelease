@@ -1,6 +1,7 @@
 package com.pao11.imagepicker;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -73,6 +74,8 @@ public class ImagePicker {
     private static ImagePicker mInstance;
 
     private boolean loadVideos;//是否需要加载所有视频并展示
+
+    private Uri imgOrVideoUri;
 
     private ImagePicker() {
     }
@@ -234,6 +237,14 @@ public class ImagePicker {
         return mSelectedImages;
     }
 
+    public Uri getImgOrVideoUri() {
+        return imgOrVideoUri;
+    }
+
+    public void setImgOrVideoUri(Uri imgOrVideoUri) {
+        this.imgOrVideoUri = imgOrVideoUri;
+    }
+
     public void clearSelectedImages() {
         if (mSelectedImages != null) mSelectedImages.clear();
     }
@@ -260,8 +271,10 @@ public class ImagePicker {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         takePictureIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         if (takePictureIntent.resolveActivity(activity.getPackageManager()) != null) {
-            if (Utils.existSDCard()) takeImageFile = new File(Environment.getExternalStorageDirectory(), "/DCIM/camera/");
-            else takeImageFile = Environment.getDataDirectory();
+            if (Utils.existSDCard())
+                takeImageFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+            else
+                takeImageFile = activity.getFilesDir();
             takeImageFile = createFile(takeImageFile, "IMG_", ".jpg");
             if (takeImageFile != null) {
                 // 默认情况下，即不需要指定intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
@@ -269,26 +282,35 @@ public class ImagePicker {
                 // 可以通过dat extra能够得到原始图片位置。即，如果指定了目标uri，data就没有数据，
                 // 如果没有指定uri，则data就返回有数据！
 
-                Uri uri;
-                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
-                    uri = Uri.fromFile(takeImageFile);
+//                Uri uri;
+//                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
+//                    uri = Uri.fromFile(takeImageFile);
+//                } else {
+//
+//                    /**
+//                     * 7.0 调用系统相机拍照不再允许使用Uri方式，应该替换为FileProvider
+//                     * 并且这样可以解决MIUI系统上拍照返回size为0的情况
+//                     */
+//                    uri = FileProvider.getUriForFile(activity, ProviderUtil.getFileProviderName(activity), takeImageFile);
+//                    //加入uri权限 要不三星手机不能拍照
+//                    List<ResolveInfo> resInfoList = activity.getPackageManager().queryIntentActivities(takePictureIntent, PackageManager.MATCH_DEFAULT_ONLY);
+//                    for (ResolveInfo resolveInfo : resInfoList) {
+//                        String packageName = resolveInfo.activityInfo.packageName;
+//                        activity.grantUriPermission(packageName, uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//                    }
+//                }
+                ContentValues cv = new ContentValues();
+                cv.put(MediaStore.Images.Media.DISPLAY_NAME, takeImageFile.getName());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    cv.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_DCIM);
                 } else {
-
-                    /**
-                     * 7.0 调用系统相机拍照不再允许使用Uri方式，应该替换为FileProvider
-                     * 并且这样可以解决MIUI系统上拍照返回size为0的情况
-                     */
-                    uri = FileProvider.getUriForFile(activity, ProviderUtil.getFileProviderName(activity), takeImageFile);
-                    //加入uri权限 要不三星手机不能拍照
-                    List<ResolveInfo> resInfoList = activity.getPackageManager().queryIntentActivities(takePictureIntent, PackageManager.MATCH_DEFAULT_ONLY);
-                    for (ResolveInfo resolveInfo : resInfoList) {
-                        String packageName = resolveInfo.activityInfo.packageName;
-                        activity.grantUriPermission(packageName, uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    }
+                    cv.put(MediaStore.Images.Media.DATA, takeImageFile.getAbsolutePath());
                 }
+                cv.put(MediaStore.Images.Media.MIME_TYPE, "image/JPEG");
+                imgOrVideoUri = activity.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, cv);
 
                 Log.e("nanchen", ProviderUtil.getFileProviderName(activity));
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imgOrVideoUri);
             }
         }
         activity.startActivityForResult(takePictureIntent, requestCode);
@@ -301,8 +323,10 @@ public class ImagePicker {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
         takePictureIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         if (takePictureIntent.resolveActivity(activity.getPackageManager()) != null) {
-            if (Utils.existSDCard()) takeImageFile = new File(Environment.getExternalStorageDirectory(), "/DCIM/camera/");
-            else takeImageFile = Environment.getDataDirectory();
+            if (Utils.existSDCard())
+                takeImageFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+            else
+                takeImageFile = activity.getFilesDir();
             takeImageFile = createFile(takeImageFile, "VID_", ".mp4");
             if (takeImageFile != null) {
                 // 默认情况下，即不需要指定intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
@@ -310,26 +334,36 @@ public class ImagePicker {
                 // 可以通过dat extra能够得到原始图片位置。即，如果指定了目标uri，data就没有数据，
                 // 如果没有指定uri，则data就返回有数据！
 
-                Uri uri;
-                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
-                    uri = Uri.fromFile(takeImageFile);
-                } else {
+//                Uri uri;
+//                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
+//                    uri = Uri.fromFile(takeImageFile);
+//                } else {
+//
+//                    /**
+//                     * 7.0 调用系统相机拍照不再允许使用Uri方式，应该替换为FileProvider
+//                     * 并且这样可以解决MIUI系统上拍照返回size为0的情况
+//                     */
+//                    uri = FileProvider.getUriForFile(activity, ProviderUtil.getFileProviderName(activity), takeImageFile);
+//                    //加入uri权限 要不三星手机不能拍照
+//                    List<ResolveInfo> resInfoList = activity.getPackageManager().queryIntentActivities(takePictureIntent, PackageManager.MATCH_DEFAULT_ONLY);
+//                    for (ResolveInfo resolveInfo : resInfoList) {
+//                        String packageName = resolveInfo.activityInfo.packageName;
+//                        activity.grantUriPermission(packageName, uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//                    }
+//                }
 
-                    /**
-                     * 7.0 调用系统相机拍照不再允许使用Uri方式，应该替换为FileProvider
-                     * 并且这样可以解决MIUI系统上拍照返回size为0的情况
-                     */
-                    uri = FileProvider.getUriForFile(activity, ProviderUtil.getFileProviderName(activity), takeImageFile);
-                    //加入uri权限 要不三星手机不能拍照
-                    List<ResolveInfo> resInfoList = activity.getPackageManager().queryIntentActivities(takePictureIntent, PackageManager.MATCH_DEFAULT_ONLY);
-                    for (ResolveInfo resolveInfo : resInfoList) {
-                        String packageName = resolveInfo.activityInfo.packageName;
-                        activity.grantUriPermission(packageName, uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    }
+                ContentValues cv = new ContentValues();
+                cv.put(MediaStore.Video.Media.DISPLAY_NAME, takeImageFile.getName());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    cv.put(MediaStore.Video.Media.RELATIVE_PATH, Environment.DIRECTORY_DCIM);
+                } else {
+                    cv.put(MediaStore.Video.Media.DATA, takeImageFile.getAbsolutePath());
                 }
+                cv.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
+                imgOrVideoUri = activity.getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, cv);
 
                 Log.e("nanchen", ProviderUtil.getFileProviderName(activity));
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imgOrVideoUri);
             }
         }
         activity.startActivityForResult(takePictureIntent, requestCode);

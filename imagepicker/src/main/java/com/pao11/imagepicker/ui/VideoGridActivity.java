@@ -284,6 +284,7 @@ public class VideoGridActivity extends ImageBaseActivity implements ImageDataSou
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (data != null && data.getExtras() != null) {
+//            System.out.println(">>>>>>>>>>>>>>>result>" + requestCode + ":::::" + resultCode);
             if (resultCode == ImagePicker.RESULT_CODE_BACK) {
                 isOrigin = data.getBooleanExtra(ImagePreviewActivity.ISORIGIN, false);
             } else {
@@ -292,17 +293,19 @@ public class VideoGridActivity extends ImageBaseActivity implements ImageDataSou
             }
         } else {
             //发送广播通知图片增加了
-            ImagePicker.galleryAddPic(this, imagePicker.getTakeImageFile());
+//            ImagePicker.galleryAddPic(this, imagePicker.getTakeImageFile());
 
-            String path = imagePicker.getTakeImageFile().getAbsolutePath();
-            ImageItem imageItem = new ImageItem();
-            imageItem.path = path;
-            setDataResourceForImageItem(imageItem);
+//            String path = imagePicker.getTakeImageFile().getAbsolutePath();
+//            ImageItem imageItem = new ImageItem();
+//            imageItem.path = path;
+//            setDataResourceForImageItem(imageItem);
+
+            ImageItem imageItem = ImageDataSource.getImageItemFromVideoUri(this, imagePicker.getImgOrVideoUri());
             imagePicker.clearSelectedImages();
             imagePicker.addSelectedImageItem(0, imageItem, true);
             Intent intent = new Intent();
             intent.putExtra(ImagePicker.EXTRA_RESULT_ITEMS, imagePicker.getSelectedImages());
-            setResult(ImagePicker.RESULT_CODE_ITEMS, intent);   //单选不需要裁剪，返回数据
+            setResult(ImagePicker.RESULT_CODE_ITEMS, intent);
             finish();
         }
     }

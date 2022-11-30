@@ -1,6 +1,8 @@
 package com.pao11.imagepicker.view;
 
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -16,9 +18,12 @@ import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.MotionEvent;
@@ -565,16 +570,28 @@ public class CropImageView extends AppCompatImageView {
     @SuppressLint("WrongThread")
     private void saveOutput(Bitmap croppedImage, Bitmap.CompressFormat outputFormat, File saveFile) {
         OutputStream outputStream = null;
+        ContentValues cv = new ContentValues();
+        cv.put(MediaStore.Images.Media.DISPLAY_NAME, saveFile.getName());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            cv.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_DCIM);
+        } else {
+            cv.put(MediaStore.Images.Media.DATA, saveFile.getAbsolutePath());
+        }
+        cv.put(MediaStore.Images.Media.MIME_TYPE, "image/" + outputFormat.name());
+        ContentResolver resolver = getContext().getContentResolver();
+        Uri insertUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, cv);
         try {
-            outputStream = getContext().getContentResolver().openOutputStream(Uri.fromFile(saveFile));
+//            outputStream = getContext().getContentResolver().openOutputStream(Uri.fromFile(saveFile));
+            outputStream = resolver.openOutputStream(insertUri);
             if (outputStream != null) croppedImage.compress(outputFormat, 90, outputStream);
-            Message.obtain(mHandler, SAVE_SUCCESS, saveFile).sendToTarget();
+            Message.obtain(mHandler, SAVE_SUCCESS, insertUri).sendToTarget();
         } catch (IOException ex) {
             ex.printStackTrace();
-            Message.obtain(mHandler, SAVE_ERROR, saveFile).sendToTarget();
+            Message.obtain(mHandler, SAVE_ERROR, insertUri).sendToTarget();
         } finally {
             if (outputStream != null) {
                 try {
+                    croppedImage.recycle();
                     outputStream.close();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -592,13 +609,14 @@ public class CropImageView extends AppCompatImageView {
 
         @Override
         public void handleMessage(Message msg) {
-            File saveFile = (File) msg.obj;
+//            File saveFile = (File) msg.obj;
+            Uri insertUri = (Uri) msg.obj;
             switch (msg.what) {
                 case SAVE_SUCCESS:
-                    if (mListener != null) mListener.onBitmapSaveSuccess(saveFile);
+                    if (mListener != null) mListener.onBitmapSaveSuccess(insertUri);
                     break;
                 case SAVE_ERROR:
-                    if (mListener != null) mListener.onBitmapSaveError(saveFile);
+                    if (mListener != null) mListener.onBitmapSaveError(insertUri);
                     break;
             }
         }
@@ -608,9 +626,9 @@ public class CropImageView extends AppCompatImageView {
     private static OnBitmapSaveCompleteListener mListener;
 
     public interface OnBitmapSaveCompleteListener {
-        void onBitmapSaveSuccess(File file);
+        void onBitmapSaveSuccess(Uri uri);
 
-        void onBitmapSaveError(File file);
+        void onBitmapSaveError(Uri uri);
     }
 
     public void setOnBitmapSaveCompleteListener(OnBitmapSaveCompleteListener listener) {

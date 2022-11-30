@@ -4,7 +4,9 @@ import android.Manifest;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.media.ThumbnailUtils;
+import android.os.Build;
 import android.provider.MediaStore;
+import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +29,7 @@ import com.pao11.imagepicker.util.Utils;
 import com.pao11.imagepicker.view.SuperCheckBox;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -191,7 +194,17 @@ public class VideoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
 
                         @Override
                         public void run() {
-                            Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(imageItem.path, MediaStore.Video.Thumbnails.MINI_KIND);
+//                            Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(imageItem.path, MediaStore.Video.Thumbnails.MINI_KIND);
+                            Bitmap bitmap = null;
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                try {
+                                    bitmap = mActivity.getContentResolver().loadThumbnail(imageItem.uri, new Size(512, 384), null);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                bitmap = ThumbnailUtils.createVideoThumbnail(imageItem.path, MediaStore.Video.Thumbnails.MINI_KIND);
+                            }
                             if (bitmap != null) {
                                 final Bitmap bitmap1 = ThumbnailUtils.extractThumbnail(bitmap, mImageSize, mImageSize, ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
 
@@ -217,7 +230,7 @@ public class VideoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
             } else {
                 llBottom.setVisibility(View.INVISIBLE);
 
-                imagePicker.getImageLoader().displayImage(mActivity, imageItem.path, ivThumb, mImageSize, mImageSize); //显示图片
+                imagePicker.getImageLoader().displayImage(mActivity, imageItem.uri, ivThumb, mImageSize, mImageSize); //显示图片
             }
 
             ivThumb.setOnClickListener(new View.OnClickListener() {

@@ -25,9 +25,21 @@ public class UILImageLoader implements ImageLoader {
     }
 
     @Override
+    public void displayImage(Activity activity, Uri uri, ImageView imageView, int width, int height) {
+        ImageSize size = new ImageSize(width, height);
+        com.nostra13.universalimageloader.core.ImageLoader.getInstance().displayImage(uri.toString(), imageView, size);
+    }
+
+    @Override
     public void displayImagePreview(Activity activity, String path, ImageView imageView, int width, int height) {
         ImageSize size = new ImageSize(width, height);
         com.nostra13.universalimageloader.core.ImageLoader.getInstance().displayImage(Uri.fromFile(new File(path)).toString(), imageView, size);
+    }
+
+    @Override
+    public void displayImagePreview(Activity activity, Uri uri, ImageView imageView, int width, int height) {
+        ImageSize size = new ImageSize(width, height);
+        com.nostra13.universalimageloader.core.ImageLoader.getInstance().displayImage(uri.toString(), imageView, size);
     }
 
     @Override

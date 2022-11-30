@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
+import android.util.Size;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -25,6 +26,7 @@ import com.pao11.imagepicker.util.ProviderUtil;
 import com.pao11.imagepicker.util.Utils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 
@@ -87,7 +89,17 @@ public class ImagePageAdapter extends PagerAdapter {
 
                     @Override
                     public void run() {
-                        final Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(imageItem.path, MediaStore.Video.Thumbnails.MINI_KIND);
+//                        final Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(imageItem.path, MediaStore.Video.Thumbnails.MINI_KIND);
+                        Bitmap bitmap = null;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            try {
+                                bitmap = mActivity.getContentResolver().loadThumbnail(imageItem.uri, new Size(512, 384), null);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            bitmap = ThumbnailUtils.createVideoThumbnail(imageItem.path, MediaStore.Video.Thumbnails.MINI_KIND);
+                        }
                         if (bitmap != null) {
                             //保存到本地目录
                             FileUtil.saveImageToSD(file.getAbsolutePath(), bitmap, 100);
@@ -110,25 +122,26 @@ public class ImagePageAdapter extends PagerAdapter {
                 public void onClick(View v) {
                     Intent intent = new Intent();
                     intent.setAction(android.content.Intent.ACTION_VIEW);
-                    File file = new File(imageItem.path);
-                    Uri uri;
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                        Uri contentUri = FileProvider.getUriForFile(mActivity, ProviderUtil.getFileProviderName(mActivity), file);
-                        intent.setDataAndType(contentUri, "video/*");
-                    } else {
-                        uri = Uri.fromFile(file);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        intent.setDataAndType(uri, "video/*");
-                    }
-
+//                    File file = new File(imageItem.path);
+//                    Uri uri;
+//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//                        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//                        Uri contentUri = FileProvider.getUriForFile(mActivity, ProviderUtil.getFileProviderName(mActivity), file);
+//                        intent.setDataAndType(imageItem.uri, "video/*");
+//                    } else {
+//                        uri = Uri.fromFile(file);
+//                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                        intent.setDataAndType(uri, "video/*");
+//                    }
+                    intent.setDataAndType(imageItem.uri, "video/*");
                     mActivity.startActivity(intent);
                 }
             });
 
         } else {
             iv_player.setVisibility(View.INVISIBLE);
-            imagePicker.getImageLoader().displayImagePreview(mActivity, imageItem.path, photoView, screenWidth, screenHeight);
+//            System.out.println(">>>>>>>>>>>>>" + imageItem.path);
+            imagePicker.getImageLoader().displayImagePreview(mActivity, imageItem.uri, photoView, screenWidth, screenHeight);
         }
 
         photoView.setOnPhotoTapListener(new OnPhotoTapListener() {

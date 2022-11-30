@@ -37,7 +37,7 @@ public class SelectDialog extends Dialog implements OnClickListener,OnItemClickL
     private int mOtherItemColor;
 
     public interface SelectDialogListener {
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id);
+        void onItemClick(AdapterView<?> parent, View view, int position, long id);
     }
 
 
@@ -48,7 +48,7 @@ public class SelectDialog extends Dialog implements OnClickListener,OnItemClickL
     private SelectDialogCancelListener mCancelListener;
 
     public interface SelectDialogCancelListener {
-        public void onCancelClick(View v);
+        void onCancelClick(View v);
     }
 
     public SelectDialog(Activity activity, int theme,

@@ -1,6 +1,9 @@
 package com.pao11.imagepicker;
 
+import android.content.ContentUris;
+import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 
@@ -31,15 +34,16 @@ public class ImageDataSource implements LoaderManager.LoaderCallbacks<Cursor> {
     public static final int LOADER_CATEGORY = 1;    //分类加载图片
     public static final int LOADER_ALL_VIDEO = 2;   //加载所有视频
     public static final int LOADER_FIRST_IMG = 3;   //加载第一张图片
-    private final String[] IMAGE_PROJECTION = {     //查询图片需要的数据列
+    private static final String[] IMAGE_PROJECTION = {     //查询图片需要的数据列
             MediaStore.Images.Media.DISPLAY_NAME,   //图片的显示名称  aaa.jpg
             MediaStore.Images.Media.DATA,           //图片的真实路径  /storage/emulated/0/pp/downloader/wallpaper/aaa.jpg
             MediaStore.Images.Media.SIZE,           //图片的大小，long型  132492
             MediaStore.Images.Media.WIDTH,          //图片的宽度，int型  1920
             MediaStore.Images.Media.HEIGHT,         //图片的高度，int型  1080
             MediaStore.Images.Media.MIME_TYPE,      //图片的类型     image/jpeg
-            MediaStore.Images.Media.DATE_ADDED};    //图片被添加的时间，long型  1450518608
-    private final String[] VIDEO_PROJECTION = {     //查询视频需要的数据列
+            MediaStore.Images.Media.DATE_ADDED,     //图片被添加的时间，long型  1450518608
+            MediaStore.Images.Media._ID};
+    private static final String[] VIDEO_PROJECTION = {     //查询视频需要的数据列
             MediaStore.Video.Media.DISPLAY_NAME,   //视频的显示名称  aaa.mp4
             MediaStore.Video.Media.DATA,           //视频的真实路径  /storage/emulated/0/pp/downloader/wallpaper/aaa.mp4
             MediaStore.Video.Media.SIZE,           //视频的大小，long型  132492
@@ -47,7 +51,8 @@ public class ImageDataSource implements LoaderManager.LoaderCallbacks<Cursor> {
             MediaStore.Video.Media.HEIGHT,         //视频的高度，int型  1080
             MediaStore.Video.Media.MIME_TYPE,      //视频的类型     image/jpeg
             MediaStore.Video.Media.DATE_ADDED,     //视频被添加的时间，long型  1450518608
-            MediaStore.Video.Media.DURATION};      //视频时长，long型  ms
+            MediaStore.Video.Media.DURATION,        //视频时长，long型  ms
+            MediaStore.Video.Media._ID};
 
     private FragmentActivity activity;
     private OnImagesLoadedListener loadedListener;                     //图片加载完成的回调接口
@@ -157,6 +162,8 @@ public class ImageDataSource implements LoaderManager.LoaderCallbacks<Cursor> {
                     String videoMimeType = data.getString(data.getColumnIndexOrThrow(VIDEO_PROJECTION[5]));
                     long videoAddTime = data.getLong(data.getColumnIndexOrThrow(VIDEO_PROJECTION[6]));
                     long videoDuration = data.getLong(data.getColumnIndexOrThrow(VIDEO_PROJECTION[7]));
+                    long videoId = data.getLong(data.getColumnIndexOrThrow(VIDEO_PROJECTION[8]));
+
                     //封装实体
                     ImageItem imageItem = new ImageItem();
                     imageItem.name = videoName;
@@ -167,6 +174,7 @@ public class ImageDataSource implements LoaderManager.LoaderCallbacks<Cursor> {
                     imageItem.mimeType = videoMimeType;
                     imageItem.addTime = videoAddTime;
                     imageItem.duration = videoDuration;
+                    imageItem.uri = ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, videoId);
                     allVideos.add(imageItem);
                     //将视频放到图片和视频中
                     if (start_i == t_size) {
@@ -212,7 +220,6 @@ public class ImageDataSource implements LoaderManager.LoaderCallbacks<Cursor> {
                     allImagesFolder.images = allVideos;
                     if (activity instanceof VideoGridActivity) {
                         imageFolders.add(0, allImagesFolder);
-
                     } else {
                         imageFolders.add(1, allImagesFolder);  //确保第二条是所有视频
                     }
@@ -242,6 +249,7 @@ public class ImageDataSource implements LoaderManager.LoaderCallbacks<Cursor> {
                     int imageHeight = data.getInt(data.getColumnIndexOrThrow(IMAGE_PROJECTION[4]));
                     String imageMimeType = data.getString(data.getColumnIndexOrThrow(IMAGE_PROJECTION[5]));
                     long imageAddTime = data.getLong(data.getColumnIndexOrThrow(IMAGE_PROJECTION[6]));
+                    long imageId = data.getLong(data.getColumnIndexOrThrow(IMAGE_PROJECTION[7]));
                     //封装实体
                     ImageItem imageItem = new ImageItem();
                     imageItem.name = imageName;
@@ -251,6 +259,7 @@ public class ImageDataSource implements LoaderManager.LoaderCallbacks<Cursor> {
                     imageItem.height = imageHeight;
                     imageItem.mimeType = imageMimeType;
                     imageItem.addTime = imageAddTime;
+                    imageItem.uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imageId);
                     allImages.add(imageItem);
                     //根据父路径分类存放图片
                     File imageFile = new File(imagePath);
@@ -293,7 +302,7 @@ public class ImageDataSource implements LoaderManager.LoaderCallbacks<Cursor> {
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        System.out.println("--------onLoaderReset");
+//        System.out.println("--------onLoaderReset");
     }
 
     /** 所有图片加载完成的回调接口 */
@@ -301,4 +310,59 @@ public class ImageDataSource implements LoaderManager.LoaderCallbacks<Cursor> {
         void onImagesLoaded(List<ImageFolder> imageFolders);
         void onVideoLoaded(List<ImageFolder> imageFolders);
     }
+
+    public static ImageItem getImageItemFromUri(Context context, Uri uri) {
+        Cursor cursor = context.getContentResolver().query(uri, IMAGE_PROJECTION, null, null, null);
+        ImageItem imageItem = new ImageItem();
+        if (cursor != null && cursor.moveToFirst()) {
+            String imageName = cursor.getString(cursor.getColumnIndexOrThrow(IMAGE_PROJECTION[0]));
+            String imagePath = cursor.getString(cursor.getColumnIndexOrThrow(IMAGE_PROJECTION[1]));
+            long imageSize = cursor.getLong(cursor.getColumnIndexOrThrow(IMAGE_PROJECTION[2]));
+            int imageWidth = cursor.getInt(cursor.getColumnIndexOrThrow(IMAGE_PROJECTION[3]));
+            int imageHeight = cursor.getInt(cursor.getColumnIndexOrThrow(IMAGE_PROJECTION[4]));
+            String imageMimeType = cursor.getString(cursor.getColumnIndexOrThrow(IMAGE_PROJECTION[5]));
+            long imageAddTime = cursor.getLong(cursor.getColumnIndexOrThrow(IMAGE_PROJECTION[6]));
+            long imageId = cursor.getLong(cursor.getColumnIndexOrThrow(IMAGE_PROJECTION[7]));
+            //封装实体
+            imageItem.name = imageName;
+            imageItem.path = imagePath;
+            imageItem.size = imageSize;
+            imageItem.width = imageWidth;
+            imageItem.height = imageHeight;
+            imageItem.mimeType = imageMimeType;
+            imageItem.addTime = imageAddTime;
+            imageItem.uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imageId);
+        }
+        return imageItem;
+    }
+
+    public static ImageItem getImageItemFromVideoUri(Context context, Uri uri) {
+        Cursor cursor = context.getContentResolver().query(uri, VIDEO_PROJECTION, null, null, null);
+        ImageItem imageItem = new ImageItem();
+        if (cursor != null && cursor.moveToFirst()) {
+            String videoName = cursor.getString(cursor.getColumnIndexOrThrow(VIDEO_PROJECTION[0]));
+            String videoPath = cursor.getString(cursor.getColumnIndexOrThrow(VIDEO_PROJECTION[1]));
+
+            long videoSize = cursor.getLong(cursor.getColumnIndexOrThrow(VIDEO_PROJECTION[2]));
+            int videoWidth = cursor.getInt(cursor.getColumnIndexOrThrow(VIDEO_PROJECTION[3]));
+            int videoHeight = cursor.getInt(cursor.getColumnIndexOrThrow(VIDEO_PROJECTION[4]));
+            String videoMimeType = cursor.getString(cursor.getColumnIndexOrThrow(VIDEO_PROJECTION[5]));
+            long videoAddTime = cursor.getLong(cursor.getColumnIndexOrThrow(VIDEO_PROJECTION[6]));
+            long videoDuration = cursor.getLong(cursor.getColumnIndexOrThrow(VIDEO_PROJECTION[7]));
+            long videoId = cursor.getLong(cursor.getColumnIndexOrThrow(VIDEO_PROJECTION[8]));
+
+            //封装实体
+            imageItem.name = videoName;
+            imageItem.path = videoPath;
+            imageItem.size = videoSize;
+            imageItem.width = videoWidth;
+            imageItem.height = videoHeight;
+            imageItem.mimeType = videoMimeType;
+            imageItem.addTime = videoAddTime;
+            imageItem.duration = videoDuration;
+            imageItem.uri = ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, videoId);
+        }
+        return imageItem;
+    }
+
 }

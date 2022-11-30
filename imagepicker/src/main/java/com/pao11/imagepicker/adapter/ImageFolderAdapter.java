@@ -3,9 +3,12 @@ package com.pao11.imagepicker.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.media.ThumbnailUtils;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +23,7 @@ import com.pao11.imagepicker.util.FileUtil;
 import com.pao11.imagepicker.util.Utils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,7 +89,7 @@ public class ImageFolderAdapter extends BaseAdapter {
         holder.imageCount.setText(mActivity.getString(R.string.ip_folder_image_count, folder.images.size()));
         if (TextUtils.equals(folder.content_type, MediaStore.Images.Media.CONTENT_TYPE)){
             holder.videoPlay.setVisibility(View.GONE);
-            imagePicker.getImageLoader().displayImage(mActivity, folder.cover.path, holder.cover, mImageSize, mImageSize);
+            imagePicker.getImageLoader().displayImage(mActivity, folder.cover.uri, holder.cover, mImageSize, mImageSize);
         } else {
             holder.videoPlay.setVisibility(View.VISIBLE);
 
@@ -105,7 +109,16 @@ public class ImageFolderAdapter extends BaseAdapter {
 
                     @Override
                     public void run() {
-                        Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(folder.cover.path, MediaStore.Video.Thumbnails.MINI_KIND);
+                        Bitmap bitmap = null;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            try {
+                                bitmap = mActivity.getContentResolver().loadThumbnail(folder.cover.uri, new Size(512, 384), null);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            bitmap = ThumbnailUtils.createVideoThumbnail(folder.cover.path, MediaStore.Video.Thumbnails.MINI_KIND);
+                        }
                         if (bitmap != null) {
                             final Bitmap bitmap1 = ThumbnailUtils.extractThumbnail(bitmap, mImageSize, mImageSize, ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
 
@@ -131,7 +144,6 @@ public class ImageFolderAdapter extends BaseAdapter {
             }
 
         }
-
 
         if (lastSelected == position) {
             holder.folderCheck.setVisibility(View.VISIBLE);

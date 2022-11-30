@@ -69,6 +69,7 @@ public class ImagePickerActivity extends AppCompatActivity implements SeekBar.On
 
         imagePicker = ImagePicker.getInstance();
         imagePicker.setImageLoader(new GlideImageLoader());
+        imagePicker.setLoadVideos(true);
 
         rb_uil = (RadioButton) findViewById(R.id.rb_uil);
         rb_glide = (RadioButton) findViewById(R.id.rb_glide);
@@ -201,6 +202,7 @@ public class ImagePickerActivity extends AppCompatActivity implements SeekBar.On
         if (resultCode == ImagePicker.RESULT_CODE_ITEMS) {
             if (data != null && requestCode == 100) {
                 images = (ArrayList<ImageItem>) data.getSerializableExtra(ImagePicker.EXTRA_RESULT_ITEMS);
+
                 MyAdapter adapter = new MyAdapter(images);
                 gridView.setAdapter(adapter);
             } else {
@@ -251,7 +253,7 @@ public class ImagePickerActivity extends AppCompatActivity implements SeekBar.On
             } else {
                 imageView = (ImageView) convertView;
             }
-            imagePicker.getImageLoader().displayImage(ImagePickerActivity.this, getItem(position).path, imageView, size, size);
+            imagePicker.getImageLoader().displayImage(ImagePickerActivity.this, getItem(position).uri, imageView, size, size);
             return imageView;
         }
     }

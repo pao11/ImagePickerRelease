@@ -2,11 +2,15 @@ package com.pao11.imagepicker.ui;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -33,6 +37,7 @@ import com.pao11.imagepicker.util.Utils;
 import com.pao11.imagepicker.view.FolderPopUpWindow;
 import com.pao11.imagepicker.view.GridSpacingItemDecoration;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -221,8 +226,6 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
                 mFolderPopupWindow.dismiss();
                 ImageFolder imageFolder = (ImageFolder) adapterView.getAdapter().getItem(position);
                 if (null != imageFolder) {
-//                    mImageGridAdapter.refreshData(imageFolder.images);
-
                     mRecyclerAdapter.refreshData(imageFolder.images);
                     mtvDir.setText(imageFolder.name);
                 }
@@ -276,7 +279,6 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
         if (imagePicker.isMultiMode()) {
             Intent intent = new Intent(ImageGridActivity.this, ImagePreviewActivity.class);
             intent.putExtra(ImagePicker.EXTRA_SELECTED_IMAGE_POSITION, position);
-
             /**
              * 2017-03-20
              *
@@ -355,33 +357,13 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
             //如果是裁剪，因为裁剪指定了存储的Uri，所以返回的data一定为null
             if (resultCode == RESULT_OK && requestCode == ImagePicker.REQUEST_CODE_TAKE) {
                 //发送广播通知图片增加了
-                ImagePicker.galleryAddPic(this, imagePicker.getTakeImageFile());
+//                ImagePicker.galleryAddPic(this, imagePicker.getTakeImageFile());
 
                 /**
                  * 2017-03-21 对机型做旋转处理
                  */
-                String path = imagePicker.getTakeImageFile().getAbsolutePath();
-//                int degree = BitmapUtil.getBitmapDegree(path);
-//                if (degree != 0){
-//                    Bitmap bitmap = BitmapUtil.rotateBitmapByDegree(path,degree);
-//                    if (bitmap != null){
-//                        File file = new File(path);
-//                        try {
-//                            FileOutputStream bos = new FileOutputStream(file);
-//                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
-//                            bos.flush();
-//                            bos.close();
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                }
 
-                ImageItem imageItem = new ImageItem();
-                imageItem.path = path;
-                BitmapFactory.Options bitmapOptions = BitmapUtil.getBitmapOptions(path);
-                imageItem.width = bitmapOptions.outWidth;
-                imageItem.height = bitmapOptions.outHeight;
+                ImageItem imageItem = ImageDataSource.getImageItemFromUri(this, imagePicker.getImgOrVideoUri());
                 imagePicker.clearSelectedImages();
                 imagePicker.addSelectedImageItem(0, imageItem, true);
                 if (imagePicker.isCrop()) {

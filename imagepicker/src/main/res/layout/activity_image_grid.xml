@@ -49,16 +49,16 @@
                     android:maxLines="1"
                     android:text="@string/ip_all_images"
                     android:textColor="#CFCFCF"
-                    android:textSize="16sp"/>
+                    android:textSize="16sp" />
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignBottom="@id/tv_dir"
-                    android:layout_marginBottom="2dp"
                     android:layout_marginLeft="4dp"
+                    android:layout_marginBottom="2dp"
                     android:layout_toRightOf="@id/tv_dir"
-                    android:src="@mipmap/text_indicator"/>
+                    android:src="@mipmap/text_indicator" />
 
             </RelativeLayout>
 

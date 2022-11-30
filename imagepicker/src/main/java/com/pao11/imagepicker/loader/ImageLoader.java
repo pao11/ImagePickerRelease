@@ -1,6 +1,7 @@
 package com.pao11.imagepicker.loader;
 
 import android.app.Activity;
+import android.net.Uri;
 import android.widget.ImageView;
 
 import java.io.Serializable;
@@ -14,9 +15,15 @@ import java.io.Serializable;
  */
 public interface ImageLoader extends Serializable {
 
+
     void displayImage(Activity activity, String path, ImageView imageView, int width, int height);
+    //为了适配Android Q及以上系统，非私有目录的path会报错，改用uri的方式
+    void displayImage(Activity activity, Uri uri, ImageView imageView, int width, int height);
 
     void displayImagePreview(Activity activity, String path, ImageView imageView, int width, int height);
+
+    //为了适配Android Q及以上系统，非私有目录的path会报错，改用uri的方式
+    void displayImagePreview(Activity activity, Uri uri, ImageView imageView, int width, int height);
 
     void clearMemoryCache();
 }

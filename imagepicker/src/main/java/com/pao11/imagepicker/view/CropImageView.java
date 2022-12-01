@@ -17,6 +17,7 @@ import android.graphics.Region;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -575,6 +576,7 @@ public class CropImageView extends AppCompatImageView {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             cv.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_DCIM);
         } else {
+            //这里的绝对地址路径一定要是非私有目录地址！！！！
             cv.put(MediaStore.Images.Media.DATA, saveFile.getAbsolutePath());
         }
         cv.put(MediaStore.Images.Media.MIME_TYPE, "image/" + outputFormat.name());
@@ -584,6 +586,8 @@ public class CropImageView extends AppCompatImageView {
 //            outputStream = getContext().getContentResolver().openOutputStream(Uri.fromFile(saveFile));
             outputStream = resolver.openOutputStream(insertUri);
             if (outputStream != null) croppedImage.compress(outputFormat, 90, outputStream);
+            // update system gallery--红米手机测试无效？？？
+            MediaScannerConnection.scanFile(getContext(), new String[]{insertUri.toString()}, new String[]{"image/" + outputFormat.name()}, null);
             Message.obtain(mHandler, SAVE_SUCCESS, insertUri).sendToTarget();
         } catch (IOException ex) {
             ex.printStackTrace();

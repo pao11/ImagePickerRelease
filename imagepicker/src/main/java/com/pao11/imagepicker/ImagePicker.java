@@ -167,9 +167,18 @@ public class ImagePicker {
         return takeImageFile;
     }
 
+    /**
+     * 图片的保存地址
+     * @param context
+     * @return
+     */
     public File getCropCacheFolder(Context context) {
         if (cropCacheFolder == null) {
-            cropCacheFolder = new File(context.getCacheDir() + "/ImagePicker/cropTemp/");
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                cropCacheFolder = new File(context.getCacheDir() + "/ImagePicker/cropTemp/");
+            } else {
+                cropCacheFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/ImagePicker/cropTemp/");
+            }
         }
         return cropCacheFolder;
     }

@@ -207,10 +207,11 @@ public class VideoGridActivity extends ImageBaseActivity implements ImageDataSou
     public void onVideoLoaded(List<ImageFolder> imageFolders) {
         this.mImageFolders = imageFolders;
         imagePicker.setImageFolders(imageFolders);
+        int position = imagePicker.getCurrentImageFolderPosition();
         if (imageFolders.size() == 0) {
             mRecyclerAdapter.refreshData(null);
         } else {
-            mRecyclerAdapter.refreshData(imageFolders.get(0).images);
+            mRecyclerAdapter.refreshData(imageFolders.get(position).images);
 
         }
         mRecyclerAdapter.setOnImageItemClickListener(this);

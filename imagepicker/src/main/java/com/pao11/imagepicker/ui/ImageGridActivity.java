@@ -236,7 +236,6 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
 
     @Override
     public void onImagesLoaded(List<ImageFolder> imageFolders) {
-        System.out.println(">>>>>>>>>>>>>1>>");
         int position = imagePicker.getCurrentImageFolderPosition();
         this.mImageFolders = imageFolders;
         imagePicker.setImageFolders(imageFolders);
@@ -261,8 +260,6 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
 
     @Override
     public void onVideoLoaded(List<ImageFolder> imageFolders) {
-        System.out.println(">>>>>>>>>>>>>2>>");
-
         this.mImageFolders = imageFolders;
         imagePicker.setImageFolders(imageFolders);
         int position = imagePicker.getCurrentImageFolderPosition();
@@ -315,8 +312,6 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
     @SuppressLint("StringFormatMatches")
     @Override
     public void onImageSelected(int position, ImageItem item, boolean isAdd) {
-        System.out.println(">>>>>>>>>>>>>3>>");
-
         if (imagePicker.getSelectImageCount() > 0) {
             mBtnOk.setText(getString(com.pao11.imagepicker.R.string.ip_select_complete, imagePicker.getSelectImageCount(), imagePicker.getSelectLimit()));
             mBtnOk.setEnabled(true);

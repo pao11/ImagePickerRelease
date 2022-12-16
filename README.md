@@ -1,5 +1,6 @@
 [![](https://jitpack.io/v/pao11/ImagePickerRelease.svg)](https://jitpack.io/#pao11/ImagePickerRelease)
-[![Travis](https://img.shields.io/badge/Gradle-3.5.2-brightgreen.svg)]()
+[![Travis](https://img.shields.io/badge/Gradle-7.1.3-brightgreen.svg)]()
+[![Download](https://maven-badges.herokuapp.com/maven-central/io.github.pao11/image-picker/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.pao11/image-picker)
 
 # ImagePickerRelease
 Android自定义相册，完全仿微信UI，实现了拍照、图片选择（单选/多选）、视频选择、 裁剪 、旋转、等功能。

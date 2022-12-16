@@ -1,15 +1,18 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
+//apply plugin: 'com.github.dcendents.android-maven'
+// vanniktech 插件
+apply plugin: 'com.vanniktech.maven.publish'
+// Kotlin Javadoc 插件
+apply plugin: 'org.jetbrains.dokka'
 
-group='com.github.pao11'
+//group='com.github.pao11'
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.3"
+    compileSdkVersion 30
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 8
         versionName "2.1"
         vectorDrawables.useSupportLibrary = true

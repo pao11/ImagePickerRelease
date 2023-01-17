@@ -346,6 +346,7 @@ public class VideoGridActivity extends ImageBaseActivity implements ImageDataSou
     @Override
     protected void onDestroy() {
         imagePicker.removeOnImageSelectedListener(this);
+        imagePicker.getImageLoader().clearMemoryCache(this);
         super.onDestroy();
     }
 }

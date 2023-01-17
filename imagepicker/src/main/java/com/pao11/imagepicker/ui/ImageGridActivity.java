@@ -46,8 +46,8 @@ import java.util.List;
  * 版    本：1.0
  * 创建日期：2018/6/19
  * 描    述：
- *
- *         新增可直接传递是否裁剪参数，以及直接拍照
+ * <p>
+ * 新增可直接传递是否裁剪参数，以及直接拍照
  * ================================================
  */
 public class ImageGridActivity extends ImageBaseActivity implements ImageDataSource.OnImagesLoadedListener, ImageRecyclerAdapter.OnImageItemClickListener, ImagePicker.OnImageSelectedListener, View.OnClickListener {
@@ -171,6 +171,7 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
     @Override
     protected void onDestroy() {
         imagePicker.removeOnImageSelectedListener(this);
+        imagePicker.getImageLoader().clearMemoryCache(this);
         super.onDestroy();
     }
 
@@ -184,7 +185,7 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
             finish();
         } else if (id == com.pao11.imagepicker.R.id.ll_dir) {
             if (mImageFolders == null) {
-                Log.i("ImageGridActivity", "您的手机没有图片");
+//                Log.i("ImageGridActivity", "您的手机没有图片");
                 return;
             }
             //点击文件夹按钮
@@ -239,22 +240,21 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
         int position = imagePicker.getCurrentImageFolderPosition();
         this.mImageFolders = imageFolders;
         imagePicker.setImageFolders(imageFolders);
-        if (imageFolders.size() == 0) {
-//            mImageGridAdapter.refreshData(null);
-            mRecyclerAdapter.refreshData(null);
-        } else {
-//            mImageGridAdapter.refreshData(imageFolders.get(0).images);
-
-            mRecyclerAdapter.refreshData(imageFolders.get(position).images);
-        }
 //        mImageGridAdapter.setOnImageItemClickListener(this);
         mRecyclerAdapter.setOnImageItemClickListener(this);
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         mRecyclerView.addItemDecoration(new GridSpacingItemDecoration(3, Utils.dp2px(this, 2), false));
         mRecyclerView.setAdapter(mRecyclerAdapter);
-        mImageFolderAdapter.refreshData(imageFolders);
+
         if (ImagePicker.getInstance().isLoadVideos()) {
             imageDataSource.loaderAllVideos();
+        } else {
+            if (imageFolders.size() == 0) {
+                mRecyclerAdapter.refreshData(null);
+            } else {
+                mRecyclerAdapter.refreshData(imageFolders.get(position).images);
+            }
+            mImageFolderAdapter.refreshData(imageFolders);
         }
     }
 
@@ -264,14 +264,11 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
         imagePicker.setImageFolders(imageFolders);
         int position = imagePicker.getCurrentImageFolderPosition();
         if (imageFolders.size() == 0) {
-
             mRecyclerAdapter.refreshData(null);
         } else {
-
             mRecyclerAdapter.refreshData(imageFolders.get(position).images);
         }
         mImageFolderAdapter.refreshData(imageFolders);
-
     }
 
     @Override

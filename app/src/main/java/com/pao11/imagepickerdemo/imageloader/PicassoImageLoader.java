@@ -66,6 +66,6 @@ public class PicassoImageLoader implements ImageLoader {
 
 
     @Override
-    public void clearMemoryCache() {
+    public void clearMemoryCache(Activity activity) {
     }
 }

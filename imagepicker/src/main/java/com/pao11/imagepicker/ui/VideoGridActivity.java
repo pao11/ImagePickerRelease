@@ -148,7 +148,7 @@ public class VideoGridActivity extends ImageBaseActivity implements ImageDataSou
             finish();
         } else if (id == com.pao11.imagepicker.R.id.ll_dir) {
             if (mImageFolders == null) {
-                Log.i("ImageGridActivity", "您的手机没有视频");
+//                Log.i("ImageGridActivity", "您的手机没有视频");
                 return;
             }
             //点击文件夹按钮

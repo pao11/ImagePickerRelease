@@ -39,7 +39,8 @@ public class FileUtil {
             externalStorageState = "";
         }
         if (preferExternal && MEDIA_MOUNTED.equals(externalStorageState)) {
-            appCacheDir = getExternalCacheDir(context);
+//            appCacheDir = getExternalCacheDir(context);
+            appCacheDir = context.getExternalCacheDir();
         }
         if (appCacheDir == null) {
             appCacheDir = context.getCacheDir();

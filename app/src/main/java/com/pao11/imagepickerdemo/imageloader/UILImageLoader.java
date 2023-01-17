@@ -43,6 +43,6 @@ public class UILImageLoader implements ImageLoader {
     }
 
     @Override
-    public void clearMemoryCache() {
+    public void clearMemoryCache(Activity activity) {
     }
 }

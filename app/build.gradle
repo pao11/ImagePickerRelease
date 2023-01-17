@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
 
     defaultConfig {
         applicationId "com.pao11.imagepickerdemo"
@@ -23,16 +23,16 @@ dependencies {
 //    compile 'com.android.support:appcompat-v7:25.3.1'
 //    compile 'com.android.support:recyclerview-v7:25.3.1'
 
-    api "androidx.appcompat:appcompat:1.1.0"
-    api 'androidx.recyclerview:recyclerview:1.1.0'
+    api "androidx.appcompat:appcompat:1.4.1"
+    api 'androidx.recyclerview:recyclerview:1.2.1'
 
 //    api 'com.github.bumptech.glide:glide:3.7.0'
     api 'com.squareup.picasso:picasso:2.5.2'
     api 'org.xutils:xutils:3.3.36'
     api 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
 
-    api 'com.github.bumptech.glide:glide:4.11.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+    api 'com.github.bumptech.glide:glide:4.14.2'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.14.2'
 
 //    api 'io.github.pao11:image-picker:3.0.0'
 //    api 'com.lzy.widget:view-core:0.2.1'

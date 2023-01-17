@@ -318,7 +318,7 @@ public class ImagePicker {
                 cv.put(MediaStore.Images.Media.MIME_TYPE, "image/JPEG");
                 imgOrVideoUri = activity.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, cv);
 
-                Log.e("nanchen", ProviderUtil.getFileProviderName(activity));
+//                Log.e("nanchen", ProviderUtil.getFileProviderName(activity));
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imgOrVideoUri);
             }
         }
@@ -371,7 +371,7 @@ public class ImagePicker {
                 cv.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
                 imgOrVideoUri = activity.getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, cv);
 
-                Log.e("nanchen", ProviderUtil.getFileProviderName(activity));
+//                Log.e("nanchen", ProviderUtil.getFileProviderName(activity));
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imgOrVideoUri);
             }
         }

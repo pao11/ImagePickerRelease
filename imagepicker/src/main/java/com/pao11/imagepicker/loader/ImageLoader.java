@@ -25,5 +25,5 @@ public interface ImageLoader extends Serializable {
     //为了适配Android Q及以上系统，非私有目录的path会报错，改用uri的方式
     void displayImagePreview(Activity activity, Uri uri, ImageView imageView, int width, int height);
 
-    void clearMemoryCache();
+    void clearMemoryCache(Activity activity);
 }

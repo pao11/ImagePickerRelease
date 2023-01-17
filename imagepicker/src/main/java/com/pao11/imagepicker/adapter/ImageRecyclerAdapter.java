@@ -3,6 +3,7 @@ package com.pao11.imagepicker.adapter;
 import android.Manifest;
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
 import android.os.Build;
 import android.provider.MediaStore;
@@ -24,6 +25,7 @@ import com.pao11.imagepicker.bean.ImageItem;
 import com.pao11.imagepicker.ui.ImageBaseActivity;
 import com.pao11.imagepicker.ui.ImageGridActivity;
 import com.pao11.imagepicker.util.FileUtil;
+import com.pao11.imagepicker.util.ThreadHelper;
 import com.pao11.imagepicker.util.Utils;
 import com.pao11.imagepicker.view.SuperCheckBox;
 
@@ -156,6 +158,8 @@ public class ImageRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
 
         void bind(final int position){
             final ImageItem imageItem = getItem(position);
+
+
             if (imageItem.mimeType != null && imageItem.mimeType.startsWith("video")) {
                 llBottom.setVisibility(View.VISIBLE);
                 long dur = imageItem.duration;
@@ -181,9 +185,9 @@ public class ImageRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
 
                 String fileName = FileUtil.Md5FileNameGenerate(imageItem.path, "jpg");
                 fileName = fileName.substring(0, fileName.lastIndexOf(".jpg")) + "_" + mImageSize + "_" + mImageSize + ".jpg";
-
                 File cacheRoot = FileUtil.getIndividualCacheDirectory(mActivity);
                 final File file = new File(cacheRoot, fileName);
+
                 if (file.exists()) {
                     imagePicker.getImageLoader().displayImage(mActivity, file.getAbsolutePath(), ivThumb, mImageSize, mImageSize); //显示本地图片
                 } else {
@@ -191,68 +195,83 @@ public class ImageRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
                     //用于滚动时，图片显示不正确的问题
                     ivThumb.setTag(position);
 
-                    new Thread(new Runnable() {
-
-                        @Override
-                        public void run() {
+                    ThreadHelper.INST.execute(() -> {
 //                            Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(imageItem.path, MediaStore.Video.Thumbnails.MINI_KIND);
-                            Bitmap bitmap = null;
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                                try {
-                                    bitmap = mActivity.getContentResolver().loadThumbnail(imageItem.uri, new Size(512, 384), null);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            } else {
-                                bitmap = ThumbnailUtils.createVideoThumbnail(imageItem.path, MediaStore.Video.Thumbnails.MINI_KIND);
+                        Bitmap bitmap = null;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            try {
+                                bitmap = mActivity.getContentResolver().loadThumbnail(imageItem.uri, new Size(512, 384), null);
+                            } catch (IOException e) {
+                                e.printStackTrace();
                             }
-                            if (bitmap != null) {
-                                final Bitmap bitmap1 = ThumbnailUtils.extractThumbnail(bitmap, mImageSize, mImageSize, ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
-
-                                bitmap.recycle();
-                                if (null != bitmap1 && !bitmap1.isRecycled()) {
-                                    //保存到本地目录
-                                    FileUtil.saveImageToSD(file.getAbsolutePath(), bitmap1, 100);
-                                    bitmap1.recycle();
-                                    mActivity.runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            if ((int) ivThumb.getTag() == position) {
-                                                imagePicker.getImageLoader().displayImage(mActivity, file.getAbsolutePath(), ivThumb, mImageSize, mImageSize);
-                                            }
-                                        }
-                                    });
-                                }
-                            }
-
+                        } else {
+                            bitmap = ThumbnailUtils.createVideoThumbnail(imageItem.path, MediaStore.Video.Thumbnails.MINI_KIND);
                         }
-                    }).start();
+                        if (bitmap != null) {
+                            final Bitmap bitmap1 = ThumbnailUtils.extractThumbnail(bitmap, mImageSize, mImageSize, ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
+
+                            bitmap.recycle();
+                            if (null != bitmap1 && !bitmap1.isRecycled()) {
+                                //保存到本地目录
+                                FileUtil.saveImageToSD(file.getAbsolutePath(), bitmap1, 100);
+                                bitmap1.recycle();
+                                mActivity.runOnUiThread(() -> {
+                                    if ((int) ivThumb.getTag() == position) {
+                                        imagePicker.getImageLoader().displayImage(mActivity, file.getAbsolutePath(), ivThumb, mImageSize, mImageSize);
+                                    }
+                                });
+                            }
+                        }
+                    });
                 }
             } else {
                 llBottom.setVisibility(View.INVISIBLE);
-//                System.out.println("adapter>>>>>>>>>>3>" + imageItem.uri.toString());
                 imagePicker.getImageLoader().displayImage(mActivity, imageItem.uri, ivThumb, mImageSize, mImageSize); //显示图片
+//                System.out.println("adapter>>>>>>>>>>3>" + imageItem.uri.toString());
+//                if (file.exists()) {
+//                    System.out.println(">>>>>>>>>>>>>>>>>>>3>>" + file.getAbsolutePath());
+//                    imagePicker.getImageLoader().displayImage(mActivity, file.getAbsolutePath(), ivThumb, mImageSize, mImageSize); //显示本地图片
+//                } else {
+//                    ivThumb.setImageBitmap(null);
+//                    //用于滚动时，图片显示不正确的问题
+//                    ivThumb.setTag(position);
+//
+//                    ThreadHelper.INST.execute(() -> {
+//                        System.out.println(">>>>>>>>>>>>>>>>>>>1>>");
+//                        Bitmap bitmap = BitmapFactory.decodeFile(imageItem.path);
+//                        if (bitmap != null) {
+//                            System.out.println(">>>>>>>>>>>>>>>>>>>2>>");
+//
+//                            final Bitmap bitmap1 = ThumbnailUtils.extractThumbnail(bitmap, mImageSize, mImageSize, ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
+//                            bitmap.recycle();
+//                            if (null != bitmap1 && !bitmap1.isRecycled()) {
+//                                //保存到本地目录
+//                                FileUtil.saveImageToSD(file.getAbsolutePath(), bitmap1, 100);
+//                                bitmap1.recycle();
+//                                mActivity.runOnUiThread(() -> {
+//                                    if ((int) ivThumb.getTag() == position) {
+//                                        imagePicker.getImageLoader().displayImage(mActivity, file.getAbsolutePath(), ivThumb, mImageSize, mImageSize);
+//                                    }
+//                                });
+//                            }
+//                        }
+//                    });
+//                }
             }
 
-            ivThumb.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (listener != null) listener.onImageItemClick(rootView, imageItem, position);
-                }
+            ivThumb.setOnClickListener(v -> {
+                if (listener != null) listener.onImageItemClick(rootView, imageItem, position);
             });
-            checkView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    cbCheck.setChecked(!cbCheck.isChecked());
-                    int selectLimit = imagePicker.getSelectLimit();
-                    if (cbCheck.isChecked() && mSelectedImages.size() >= selectLimit) {
-                        Toast.makeText(mActivity.getApplicationContext(), mActivity.getString(com.pao11.imagepicker.R.string.ip_select_limit, selectLimit), Toast.LENGTH_SHORT).show();
-                        cbCheck.setChecked(false);
-                        mask.setVisibility(View.GONE);
-                    } else {
-                        imagePicker.addSelectedImageItem(position, imageItem, cbCheck.isChecked());
-                        mask.setVisibility(View.VISIBLE);
-                    }
+            checkView.setOnClickListener(v -> {
+                cbCheck.setChecked(!cbCheck.isChecked());
+                int selectLimit = imagePicker.getSelectLimit();
+                if (cbCheck.isChecked() && mSelectedImages.size() >= selectLimit) {
+                    Toast.makeText(mActivity.getApplicationContext(), mActivity.getString(com.pao11.imagepicker.R.string.ip_select_limit, selectLimit), Toast.LENGTH_SHORT).show();
+                    cbCheck.setChecked(false);
+                    mask.setVisibility(View.GONE);
+                } else {
+                    imagePicker.addSelectedImageItem(position, imageItem, cbCheck.isChecked());
+                    mask.setVisibility(View.VISIBLE);
                 }
             });
             //根据是否多选，显示或隐藏checkbox
@@ -286,14 +305,11 @@ public class ImageRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
         void bindCamera(){
             mItemView.setLayoutParams(new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, mImageSize)); //让图片是个正方形
             mItemView.setTag(null);
-            mItemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!((ImageBaseActivity) mActivity).checkPermission(Manifest.permission.CAMERA)) {
-                        ActivityCompat.requestPermissions(mActivity, new String[]{Manifest.permission.CAMERA}, ImageGridActivity.REQUEST_PERMISSION_CAMERA);
-                    } else {
-                        imagePicker.takePicture(mActivity, ImagePicker.REQUEST_CODE_TAKE);
-                    }
+            mItemView.setOnClickListener(v -> {
+                if (!((ImageBaseActivity) mActivity).checkPermission(Manifest.permission.CAMERA)) {
+                    ActivityCompat.requestPermissions(mActivity, new String[]{Manifest.permission.CAMERA}, ImageGridActivity.REQUEST_PERMISSION_CAMERA);
+                } else {
+                    imagePicker.takePicture(mActivity, ImagePicker.REQUEST_CODE_TAKE);
                 }
             });
         }
